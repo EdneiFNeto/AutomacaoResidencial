@@ -1,0 +1,2 @@
+rootProject.name = "Medidor De Energia"
+include ':app'
