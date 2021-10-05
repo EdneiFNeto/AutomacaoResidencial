@@ -13,7 +13,7 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 
 ## Screenshots
 
-![Login](screenshots/serial-port.png "Serial Port")
+![Serial Port](screenshots/serial-port.png "Serial Port")
 
 ## Bibliotecas
 
