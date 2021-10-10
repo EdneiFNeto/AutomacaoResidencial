@@ -6,16 +6,23 @@ import Routes from './routes';
 
 import {Provider} from 'react-redux';
 import store from './store';
+const styled = {backgroundColor: '#312e38', flex: 1};
 
-const App: React.FC = () => (
-  <Provider store={store}>
-    <NavigationContainer>
-      <StatusBar barStyle="light-content" backgroundColor="#312e38" />
-      <View style={{backgroundColor: '#312e38', flex: 1}}>
-        <Routes />
-      </View>
-    </NavigationContainer>
-  </Provider>
-);
+import {AutProvider} from './contexts/auth';
+
+const App: React.FC = () => {
+  return (
+    <Provider store={store}>
+      <NavigationContainer>
+        <StatusBar barStyle="light-content" backgroundColor="#312e38" />
+        <View style={styled}>
+          <AutProvider>
+            <Routes />
+          </AutProvider>
+        </View>
+      </NavigationContainer>
+    </Provider>
+  );
+};
 
 export default App;
