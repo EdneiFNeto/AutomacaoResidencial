@@ -26,6 +26,14 @@ export const Input = styled.TextInput`
   border-bottom-width: 1px;
 `;
 
+export const TextInfo = styled.Text`
+  font-size: 14px;
+  margin: 8px 0;
+  font-family: 'Roboto-Regular';
+  font-style: italic;
+  color: red;
+`;
+
 export const ButtonLogin = styled(RectButton)`
   padding: 12px;
   width: 100%;

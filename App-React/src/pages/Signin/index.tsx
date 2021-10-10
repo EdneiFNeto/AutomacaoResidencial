@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {ToastAndroid} from 'react-native';
+import {Text, ToastAndroid} from 'react-native';
 
 import {
   Container,
@@ -18,6 +18,7 @@ import {
   ButtonLoginFacebook,
   TextOur,
   TextButtonFacebook,
+  TextInfo,
 } from './style';
 
 import Icon from 'react-native-vector-icons/Feather';
@@ -38,25 +39,24 @@ const Signin: React.FC = () => {
   type SigninScreenProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
   const navigation = useNavigation<SigninScreenProp>();
 
-  const [visibility, setVisibility] = useState(false);
+  const [visibility, setVisibility] = useState<boolean>(true);
   const [email, setEmail] = useState<String>();
+  const [isNotExisteUser, setIsExistiUser] = useState<boolean>(false);
 
   useEffect(() => {
-    setVisibility(true);
-
-    setTimeout(() => {
-      getUserAsyncStorage();
-      setVisibility(false);
-    }, 3000);
-  }, []);
+    getUserAsyncStorage();
+  }, [isNotExisteUser]);
 
   async function getUserAsyncStorage() {
-    await AsyncStorage.getItem('user', data => {
-      console.log('User', data);
-      if (data !== null) {
-        navigation.navigate('Home');
-      }
-    });
+    setTimeout(async () => {
+      await AsyncStorage.getItem('user', data => {
+        console.log('User', data);
+        setVisibility(false);
+        if (data !== null) {
+          navigation.navigate('Home');
+        }
+      });
+    }, 3000);
   }
 
   async function onFacebookButtonPress() {
@@ -129,23 +129,11 @@ const Signin: React.FC = () => {
   }
 
   function toPageHome(data: String) {
-    let existe: boolean = false;
     if (email === data) {
       navigation.navigate('Home');
-      existe = true;
-    } else {
-      existe = false;
     }
 
-    if (!existe) {
-      ToastAndroid.showWithGravityAndOffset(
-        'Usuario não encontrado',
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        25,
-        50,
-      );
-    }
+    setIsExistiUser(!(email === data));
   }
 
   return (
@@ -160,7 +148,9 @@ const Signin: React.FC = () => {
           placeholder="Enter your emial"
           onChangeText={(text: string) => setEmail(text)}
         />
+
         <Input placeholder="Enter your password" />
+        {isNotExisteUser && <TextInfo>Não existe usuário!</TextInfo>}
 
         <ButtonLogin onPress={() => handleLogin()}>
           <TextButtonLogin>Login</TextButtonLogin>
