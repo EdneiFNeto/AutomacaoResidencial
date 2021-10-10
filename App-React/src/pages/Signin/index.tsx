@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {View, StyleSheet, ToastAndroid, Button, StatusBar} from 'react-native';
+import {ToastAndroid} from 'react-native';
 
 import {
   Container,
@@ -40,28 +40,26 @@ const Signin: React.FC = () => {
 
   const [visibility, setVisibility] = useState(false);
   const [email, setEmail] = useState<String>();
-  const [password, setPassword] = useState<String>();
 
   useEffect(() => {
     setVisibility(true);
-    const getUserInstorage = async () => {
-      AsyncStorage.getItem('user')
-        .then(result => {
-          setVisibility(false);
-          if (result !== undefined) {
-            navigation.navigate('Home');
-          }
-        })
-        .catch(error => console.error(error));
-    };
 
     setTimeout(() => {
-      getUserInstorage();
+      getUserAsyncStorage();
       setVisibility(false);
     }, 3000);
-  }, [navigation, visibility]);
+  }, []);
 
-  const onFacebookButtonPress = async () => {
+  async function getUserAsyncStorage() {
+    await AsyncStorage.getItem('user', data => {
+      console.log('User', data);
+      if (data !== null) {
+        navigation.navigate('Home');
+      }
+    });
+  }
+
+  async function onFacebookButtonPress() {
     try {
       const result = await LoginManager.logInWithPermissions([
         'public_profile',
@@ -91,45 +89,36 @@ const Signin: React.FC = () => {
       setVisibility(false);
       console.log('Error[catch]', error);
     }
-  };
+  }
 
-  const saveUserDatabaseLocal = async result => {
+  async function saveUserDatabaseLocal(result) {
     try {
-      console.log('Result', result.additionalUserInfo.profile);
-      try {
-        const user = result.additionalUserInfo.profile as User;
-        await AsyncStorage.setItem('user', JSON.stringify(user))
-          .then(() => saveDataInFirebase(user))
-          .catch(error => {
-            setVisibility(false);
-            console.error('Error', error);
-          });
-      } catch (e) {
-        setVisibility(false);
-        console.error('error', e);
-      }
-    } catch (e) {
-      setVisibility(false);
-      console.log('Error', e);
-    }
-  };
-
-  const saveDataInFirebase = useCallback(
-    async (user: User) => {
-      await db
-        .ref('/users')
-        .push()
-        .set(user)
-        .then(() => navigation.navigate('Home'))
+      const user = result.additionalUserInfo.profile as User;
+      await AsyncStorage.setItem('user', JSON.stringify(user))
+        .then(() => saveDataInFirebase(user))
         .catch(error => {
           setVisibility(false);
-          console.log('error', error);
+          console.error('Error', error);
         });
-    },
-    [navigation],
-  );
+    } catch (e) {
+      setVisibility(false);
+      console.error('error', e);
+    }
+  }
 
-  const handleLogin = async () => {
+  async function saveDataInFirebase(user: User) {
+    await db
+      .ref('/users')
+      .push()
+      .set(user)
+      .then(() => navigation.navigate('Home'))
+      .catch(error => {
+        setVisibility(false);
+        console.log('error', error);
+      });
+  }
+
+  async function handleLogin() {
     setVisibility(true);
     await db.ref('/users').once('value', snapshot => {
       setVisibility(false);
@@ -137,7 +126,7 @@ const Signin: React.FC = () => {
         toPageHome(data.child('email').val() as string);
       });
     });
-  };
+  }
 
   function toPageHome(data: String) {
     let existe: boolean = false;
@@ -171,10 +160,7 @@ const Signin: React.FC = () => {
           placeholder="Enter your emial"
           onChangeText={(text: string) => setEmail(text)}
         />
-        <Input
-          placeholder="Enter your password"
-          onChangeText={text => setPassword(text)}
-        />
+        <Input placeholder="Enter your password" />
 
         <ButtonLogin onPress={() => handleLogin()}>
           <TextButtonLogin>Login</TextButtonLogin>
