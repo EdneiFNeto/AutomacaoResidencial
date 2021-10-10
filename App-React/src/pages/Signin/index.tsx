@@ -1,6 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState, useCallback} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {View, StyleSheet, ToastAndroid, Button, StatusBar} from 'react-native';
+
 import {
   Container,
   TextWelComer,
@@ -26,22 +29,21 @@ import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import database from '@react-native-firebase/database';
+import {User} from '../../model/User';
 
 import ProgressComponent from '../../components/progressComponent';
-import {event} from 'react-native-reanimated';
-const reference = database()
-  .ref('/users')
-  .push();
+const db = database();
 
 const Signin: React.FC = () => {
   type SigninScreenProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
   const navigation = useNavigation<SigninScreenProp>();
 
   const [visibility, setVisibility] = useState(false);
-  const [email, setEmail] = useState(undefined);
-  const [password, setPassword] = useState(undefined);
+  const [email, setEmail] = useState<String>();
+  const [password, setPassword] = useState<String>();
 
   useEffect(() => {
+    setVisibility(true);
     const getUserInstorage = async () => {
       AsyncStorage.getItem('user')
         .then(result => {
@@ -55,10 +57,11 @@ const Signin: React.FC = () => {
 
     setTimeout(() => {
       getUserInstorage();
+      setVisibility(false);
     }, 3000);
   }, [navigation, visibility]);
 
-  const onFacebookButtonPress = useCallback(async () => {
+  const onFacebookButtonPress = async () => {
     try {
       const result = await LoginManager.logInWithPermissions([
         'public_profile',
@@ -81,42 +84,43 @@ const Signin: React.FC = () => {
 
       await auth()
         .signInWithCredential(facebookCredential)
-        .then(result => saveUserDatabaseLocal(result));
+        .then(dataFirebase => {
+          saveUserDatabaseLocal(dataFirebase);
+        });
     } catch (error) {
       setVisibility(false);
       console.log('Error[catch]', error);
     }
-  }, [visibility]);
+  };
 
-  const saveUserDatabaseLocal = useCallback(
-    async result => {
+  const saveUserDatabaseLocal = async result => {
+    try {
+      console.log('Result', result.additionalUserInfo.profile);
       try {
-        console.log('Result', result.additionalUserInfo.profile);
-        try {
-          const userJson = JSON.stringify(result.additionalUserInfo.profile);
-          await AsyncStorage.setItem('user', userJson)
-            .then(result => saveDataInFirebase(userJson))
-            .catch(error => {
-              setVisibility(false);
-              console.error('Error', error);
-            });
-        } catch (e) {
-          setVisibility(false);
-          console.error('error', e);
-        }
+        const user = result.additionalUserInfo.profile as User;
+        await AsyncStorage.setItem('user', JSON.stringify(user))
+          .then(() => saveDataInFirebase(user))
+          .catch(error => {
+            setVisibility(false);
+            console.error('Error', error);
+          });
       } catch (e) {
         setVisibility(false);
-        console.log('Error', e);
+        console.error('error', e);
       }
-    },
-    [visibility],
-  );
+    } catch (e) {
+      setVisibility(false);
+      console.log('Error', e);
+    }
+  };
 
   const saveDataInFirebase = useCallback(
-    async user => {
-      await reference
-        .set({user})
-        .then(result => navigation.navigate('Home'))
+    async (user: User) => {
+      await db
+        .ref('/users')
+        .push()
+        .set(user)
+        .then(() => navigation.navigate('Home'))
         .catch(error => {
           setVisibility(false);
           console.log('error', error);
@@ -127,10 +131,33 @@ const Signin: React.FC = () => {
 
   const handleLogin = async () => {
     setVisibility(true);
-    console.log('emial', email);
-    console.log('password', password);
-    await saveDataInFirebase({user: email});
+    await db.ref('/users').once('value', snapshot => {
+      setVisibility(false);
+      snapshot.forEach(data => {
+        toPageHome(data.child('email').val() as string);
+      });
+    });
   };
+
+  function toPageHome(data: String) {
+    let existe: boolean = false;
+    if (email === data) {
+      navigation.navigate('Home');
+      existe = true;
+    } else {
+      existe = false;
+    }
+
+    if (!existe) {
+      ToastAndroid.showWithGravityAndOffset(
+        'Usuario não encontrado',
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+    }
+  }
 
   return (
     <>
@@ -142,7 +169,7 @@ const Signin: React.FC = () => {
         <ImageInfo source={imageInfo} />
         <Input
           placeholder="Enter your emial"
-          onChangeText={text => setEmail(text)}
+          onChangeText={(text: string) => setEmail(text)}
         />
         <Input
           placeholder="Enter your password"
