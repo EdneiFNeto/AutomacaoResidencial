@@ -27,6 +27,7 @@ import StatusBarComponent from '../../components/StatusBarComponent';
 import {RootStackParamList} from '../../type';
 import {User} from '../../model/User';
 import AuthContext from '../../contexts/auth';
+import ShapeComponent from '../../components/shapeComponent';
 
 import ProgressComponent from '../../components/progressComponent';
 
@@ -92,6 +93,8 @@ const Signin: React.FC = () => {
   return (
     <>
       <StatusBarComponent />
+      <ShapeComponent />
+
       {visibility && <ProgressComponent />}
 
       <Container>

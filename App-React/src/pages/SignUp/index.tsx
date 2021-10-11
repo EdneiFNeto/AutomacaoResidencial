@@ -19,6 +19,7 @@ import {Alert} from 'react-native';
 
 import {RootStackParamList} from '../../type';
 import StatusBarComponent from '../../components/StatusBarComponent';
+import ShapeComponent from '../../components/shapeComponent';
 
 const SignUp: React.FC = () => {
   type ISigninScreenProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
@@ -54,6 +55,8 @@ const SignUp: React.FC = () => {
 
   return (
     <>
+      <ShapeComponent />
+
       <StatusBarComponent />
       <Container>
         <TextWelComer>Welcome Onboard</TextWelComer>
