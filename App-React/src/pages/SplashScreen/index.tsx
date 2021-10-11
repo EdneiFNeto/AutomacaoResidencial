@@ -14,12 +14,15 @@ import {
 import imageInfo from '../../assets/undraw_Developer.png';
 import StatusBarComponent from '../../components/StatusBarComponent';
 import {RootStackParamList} from '../../type';
+import ShapeComponent from '../../components/shapeComponent';
 
 const SplashScreen: React.FC = () => {
   type ISigninScreenProp = StackNavigationProp<RootStackParamList, 'Signin'>;
   const navigation = useNavigation<ISigninScreenProp>();
   return (
     <Container>
+      <ShapeComponent />
+
       <StatusBarComponent />
 
       <ImageStarted source={imageInfo} />
