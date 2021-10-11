@@ -3,7 +3,7 @@
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
 
 ## Screenshots
-
+<img src="../screenshots/app-1.PNG" width="150" title="hover text">
 ![Splash](../screenshots/app-1.PNG?raw=true "Splash")
 ![SigIn](../screenshots/App-2.PNG "SigIn")
 ![SignUp](../screenshots/App-3.PNG "SignUp")
