@@ -41,18 +41,26 @@ void loop() {
  
  ## Código fonte do Node JS
 ```javascript
-const express = require('express');
-const http = require('http');
+import express from 'express';
+import  http from 'http';
+import { getDatabase, ref, push } from "firebase/database";
+import { initializeApp } from "firebase/app";
+import { format } from 'date-fns'
+
+const firebaseConfig = {
+  ...
+};
+
+initializeApp(firebaseConfig);
 
 const app = express();
 app.use(express.json());
 
 const server = http.createServer(app);
-
-const SerialPort = require('serialport');
+import SerialPort from 'serialport';
 const ReadLine = SerialPort.parsers.Readline;
 
-const mySerial = new SerialPort("COM21", { 
+const mySerial = new SerialPort("COM25", { 
   baudRate: 9600,
 });
 
@@ -63,25 +71,38 @@ mySerial.pipe(parser);
 mySerial.on("open", () => {
   parser.on('data', (data) => {
     if(myValue !== undefined){
-      if(myValue === 1){
+      const  valueLowecase = String(myValue).toUpperCase();
+
+      if(valueLowecase === 'OFF'){
         mySerial.write('1') 
-      } else {
+      } else if(valueLowecase === 'ON'){
         mySerial.write('2') 
       }
     }
-    
-    console.log('data', data);
+    sendConsumo(data);
   });
 });
 
 app.post('/low', (request, response, next ) => {
-  const { value } = request.body;
-  myValue = value;
-  return response.json({ message: value === 1 ? 'HIGH': 'LOW' })
+  const { command } = request.body;
+  const  valueLowecase = String(command).toUpperCase();
+  
+  if(valueLowecase !== 'OFF' && valueLowecase !== 'ON')
+    return response.status(404).json({ status: `Command not found` });
+  
+  myValue = command;
+  return response.status(200).json({ status: valueLowecase === 'OFF' ? 'OFF': 'ON' });
 });
+
+async function sendConsumo(data) {
+  const db = getDatabase();
+  push(ref(db, '/consumption_kwth'), 
+    { data, date_time: format(new Date(), 'yyyy-MM-dd HH:mm') })
+    .then(()=> console.log('Send success', data))
+    .catch(error => console.error('error', error));
+}
 
 server.listen(3000, () => {
-  console.log('server run...');
+  console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm')}`);
 });
-
 ```
