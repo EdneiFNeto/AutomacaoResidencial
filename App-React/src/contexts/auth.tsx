@@ -11,7 +11,7 @@ interface AuthContextData {
   signIn(user: User | null): Promise<void>;
   signOut(): Promise<void>;
   saveUserAsyncStorage(user: User): Promise<void>;
-  saveUserInFirebase(): Promise<object>;
+  saveDataInFirebase(user: User): Promise<void>;
   listUserInFirebase(email: string): Promise<object | null>;
   getUserAsyncStorage(): Promise<string | null>;
   loginFacebook(): Promise<void>;
@@ -46,10 +46,6 @@ export const AutProvider: React.FC = ({children}) => {
   async function getUserAsyncStorage(): Promise<string | null> {
     const userStorage = await AsynSotorage.getItem('@IoT:user');
     return userStorage;
-  }
-
-  async function saveUserInFirebase(): Promise<object> {
-    return {} as object;
   }
 
   async function listUserInFirebase(email: string): Promise<object | null> {
@@ -96,13 +92,11 @@ export const AutProvider: React.FC = ({children}) => {
       });
   }
 
-  async function saveDataInFirebase(user: User) {
+  async function saveDataInFirebase(user: User): Promise<void> {
     await db
       .ref('/users')
       .push()
-      .set(user)
-      .then(() => {})
-      .catch(error => console.error('error', error));
+      .set(user);
   }
 
   function getUserFecebook(dataFacebook: User): User {
@@ -125,7 +119,7 @@ export const AutProvider: React.FC = ({children}) => {
         signIn,
         signOut,
         saveUserAsyncStorage,
-        saveUserInFirebase,
+        saveDataInFirebase,
         listUserInFirebase,
         getUserAsyncStorage,
         loginFacebook,
