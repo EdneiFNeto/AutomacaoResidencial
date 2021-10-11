@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
+    "date-fns": "^2.25.0",
     "express": "^4.17.1",
+    "firebase": "^9.1.2",
     "serialport": "^9.2.4",
     "socket.io": "^4.2.0"
   },
