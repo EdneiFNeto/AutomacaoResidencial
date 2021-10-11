@@ -4,7 +4,7 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 
 ## Screenshots
 
-![Splash](../screenshots/app-1.PNG "Splash")
+![Splash](../screenshots/app-1.PNG?raw=true "Splash")
 ![SigIn](../screenshots/App-2.PNG "SigIn")
 ![SignUp](../screenshots/App-3.PNG "SignUp")
 ![Home](../screenshots/App-4.PNG "Home")
