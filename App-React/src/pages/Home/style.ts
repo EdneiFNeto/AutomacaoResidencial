@@ -24,7 +24,7 @@ export const DigitalBg = styled.ImageBackground`
 export const TitleConsumo = styled.Text`
   font-size: 18px;
   margin-top: 12px;
-  font-family: 'DS-DIGI';
+  font-family: 'Roboto-Medium';
 `;
 
 export const TitleValue = styled.Text`
@@ -35,7 +35,7 @@ export const TitleValue = styled.Text`
 
 export const TitleKWH = styled.Text`
   font-family: 'DS-DIGI';
-  font-size: 20px;
+  font-size: 22px;
   text-align: center;
 `;
 
@@ -44,33 +44,33 @@ export const InfoDigital = styled.View`
   margin-top: 32px;
 `;
 
-export const TitleInfo = styled.Text`
+export const TitleInfoMonth = styled.Text`
   font-size: 18px;
-  font-family: 'DS-DIGI';
+  font-family: 'Roboto-Medium';
+`;
+
+export const TitleInfo = styled.Text`
+  font-size: 16px;
+  font-family: 'Roboto-Regular';
 `;
 
 export const TitleDate = styled.Text`
-  font-size: 16px;
-  font-family: 'DS-DIGI';
-  margin-top: 18px;
+  font-size: 20px;
+  font-family: 'Roboto-Medium';
+  margin-top: 10px;
 `;
 export const TitleDateInfo = styled.Text`
   font-size: 14px;
-  font-family: 'DS-DIGI';
+  font-family: 'Roboto-Regular';
 `;
 export const Flag = styled.View`
   flex-direction: row;
   margin-top: 12px;
-  font-family: 'DS-DIGI';
+  font-family: 'Roboto-Regular';
 `;
 
 export const TextFlag = styled.Text`
-  font-size: 14px;
+  font-size: 16px;
   margin-left: 8px;
-`;
-
-export const ShapeImage = styled.Image`
-  position: absolute;
-  top: 0;
-  left: 0;
+  font-family: 'Roboto-Thin';
 `;
