@@ -43,7 +43,7 @@ mySerial.on("open", () => {
         mySerial.write('2') 
       }
     }
-    sendConsumo(data);
+    sendConsumo({data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: 100.9, value: 0.01});
   });
 });
 
@@ -61,13 +61,12 @@ app.post('/low', (request, response, next ) => {
 async function sendConsumo(data) {
   const db = getDatabase();
   push(ref(db, '/consumption_kwth'), 
-    { data, date_time: format(new Date(), 'yyyy-MM-dd HH:mm') })
-    .then(()=> console.log('Send success', data))
+    { ...data })
     .catch(error => console.error('error', error));
 }
 
 server.listen(3000, () => {
-  console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm')}`);
+  console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm:ss')}`);
 });
 
 

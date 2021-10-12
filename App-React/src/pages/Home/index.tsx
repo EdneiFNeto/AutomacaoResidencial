@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+
 import {
   Container,
   DigitalBg,
@@ -21,6 +22,8 @@ import StatusBarComponent from '../../components/StatusBarComponent';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
 
+import database from '@react-native-firebase/database';
+
 import Icon from 'react-native-vector-icons/Feather';
 
 function LogoutComponent() {
@@ -38,23 +41,50 @@ function GraphComponent() {
     </Container>
   );
 }
+interface Consumpotion {
+  data: string;
+  date_time: string;
+  kwh: number;
+  value: number;
+}
 
-function SettingsScreen() {
+function DigialScreen() {
+  const [consumption, setConsumption] = useState<Consumpotion | null>(null);
+
+  useEffect(() => {
+    async function reader() {
+      await database()
+        .ref('/consumption_kwth')
+        .on('child_added', snapshot => {
+          console.log('A new node has been added', snapshot.val());
+          setConsumption(snapshot.val());
+        });
+    }
+
+    reader();
+  }, []);
+
   return (
     <Container>
       <ShapeComponent />
       <ContainerDigital>
         <DigitalBg source={bgDigital} resizeMode="cover">
           <TitleConsumo>Consumption</TitleConsumo>
-          <TitleValue>120,00</TitleValue>
+          <TitleValue>
+            {consumption !== null ? consumption.kwh : '00,00'}{' '}
+          </TitleValue>
           <TitleKWH>KWH</TitleKWH>
         </DigitalBg>
 
         <InfoDigital>
           <TitleInfoMonth>Month</TitleInfoMonth>
-          <TitleInfo>R$ 12,00</TitleInfo>
+          <TitleInfo>
+            R$ {consumption !== null ? consumption.value : '00,00'}
+          </TitleInfo>
           <TitleDate>Date</TitleDate>
-          <TitleDateInfo>12/09</TitleDateInfo>
+          <TitleDateInfo>
+            {consumption !== null ? consumption.date_time : '00/00'}
+          </TitleDateInfo>
           <Flag>
             <Icon size={24} name="flag" color="yellow" />
             <TextFlag>Yellow card</TextFlag>
@@ -90,7 +120,7 @@ const Home: React.FC = () => {
         })}>
         <Tab.Screen
           name="Digital"
-          component={SettingsScreen}
+          component={DigialScreen}
           options={{
             headerShown: false,
             tabBarItemStyle: {
