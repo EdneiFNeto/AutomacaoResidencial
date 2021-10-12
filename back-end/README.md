@@ -97,12 +97,12 @@ app.post('/low', (request, response, next ) => {
 async function sendConsumo(data) {
   const db = getDatabase();
   push(ref(db, '/consumption_kwth'), 
-    { data, date_time: format(new Date(), 'yyyy-MM-dd HH:mm') })
+    { data, date_time: format(new Date(), 'yyyy-MM-dd HH:mm:ss') })
     .then(()=> console.log('Send success', data))
     .catch(error => console.error('error', error));
 }
 
 server.listen(3000, () => {
-  console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm')}`);
+  console.log(`Server run in `);
 });
 ```
