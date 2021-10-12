@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 
 import {
   Container,
@@ -16,6 +16,7 @@ import {
   TitleInfoMonth,
 } from './style';
 
+import AuthContext from '../../contexts/auth';
 import bgDigital from '../../assets/bg-digital.png';
 import ShapeComponent from '../../components/shapeComponent';
 import StatusBarComponent from '../../components/StatusBarComponent';
@@ -25,6 +26,8 @@ const Tab = createBottomTabNavigator();
 import database from '@react-native-firebase/database';
 
 import Icon from 'react-native-vector-icons/Feather';
+import api from '../../services/api';
+import {User} from '../../model/User';
 
 function LogoutComponent() {
   return (
@@ -48,21 +51,55 @@ interface Consumpotion {
   value: number;
 }
 
+interface AuthCommandRequest {
+  command: string;
+  emailRequest: string;
+  facebookIdRequest: string;
+}
+
 function DigialScreen() {
   const [consumption, setConsumption] = useState<Consumpotion | null>(null);
+  const {getUserAsyncStorage} = useContext(AuthContext);
 
   useEffect(() => {
+    async function getUser() {
+      await getUserAsyncStorage()
+        .then(userStorage => {
+          if (userStorage !== null) {
+            const user = JSON.parse(userStorage) as User;
+            const authRequest: AuthCommandRequest = {
+              command: 'on',
+              emailRequest: user.email,
+              facebookIdRequest: String(user.id),
+            };
+            getAPI(authRequest);
+          }
+        })
+        .catch(error => console.log('Error', error));
+    }
+
+    async function getAPI(authRequest: AuthCommandRequest) {
+      await api
+        .post('/start', authRequest)
+        .then(result => {
+          if (result.status === 200) {
+            reader();
+          }
+        })
+        .catch(error => console.error('Error', `${error}`));
+    }
+
     async function reader() {
       await database()
         .ref('/consumption_kwth')
-        .on('child_added', snapshot => {
+        .on('child_changed', snapshot => {
           console.log('A new node has been added', snapshot.val());
           setConsumption(snapshot.val());
         });
     }
 
-    reader();
-  }, []);
+    getUser();
+  }, [getUserAsyncStorage]);
 
   return (
     <Container>

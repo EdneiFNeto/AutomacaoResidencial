@@ -1,6 +1,6 @@
 import express from 'express';
 import  http from 'http';
-import { getDatabase, ref, push } from "firebase/database";
+import { getDatabase, ref, set, child, get } from "firebase/database";
 import { initializeApp } from "firebase/app";
 import { format } from 'date-fns'
 
@@ -29,6 +29,9 @@ const mySerial = new SerialPort("COM25", {
 });
 
 let myValue;
+let email = null;
+let facebookId = null;
+
 const parser = new ReadLine({ delimiter: '\r\n' });
 mySerial.pipe(parser);
 
@@ -36,32 +39,52 @@ mySerial.on("open", () => {
   parser.on('data', (data) => {
     if(myValue !== undefined){
       const  valueLowecase = String(myValue).toUpperCase();
-
-      if(valueLowecase === 'OFF'){
-        mySerial.write('1') 
-      } else if(valueLowecase === 'ON'){
-        mySerial.write('2') 
+      try {
+        if(valueLowecase === 'ON' && email !== null && facebookId !== null){
+          const dataRequest = { data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: 100.9, value: 0.01, email, facebookId }
+          sendConsumo(dataRequest);
+        } else {
+          console.log('Is not running...');
+        }
+      } catch (error) {
+        console.log('Error', error);
       }
     }
-    sendConsumo({data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: 100.9, value: 0.01});
   });
 });
 
-app.post('/low', (request, response, next ) => {
-  const { command } = request.body;
+app.post('/start', async (request, response) => {
+
+  const { command, emailRequest, facebookIdRequest } = request.body;
   const  valueLowecase = String(command).toUpperCase();
   
+  email = emailRequest;
+  facebookId = facebookIdRequest;
+  myValue = command;
+  
+  if(facebookIdRequest === undefined)
+    return response.status(404).json({ status: `FacebookId not found` });
+  
+  const dbRef = ref(getDatabase());
+  const isExistsUser = await get(child(dbRef, `consumption_kwth/${facebookIdRequest}`))
+  
+  if(isExistsUser.val() === null)
+    return response.status(404).json({ status: `Not exists user!` });
+  
+  if(emailRequest === undefined)
+    return response.status(404).json({ status: `E-mail not found` });
+
   if(valueLowecase !== 'OFF' && valueLowecase !== 'ON')
     return response.status(404).json({ status: `Command not found` });
   
-  myValue = command;
   return response.status(200).json({ status: valueLowecase === 'OFF' ? 'OFF': 'ON' });
 });
 
 async function sendConsumo(data) {
   const db = getDatabase();
-  push(ref(db, '/consumption_kwth'), 
+  set(ref(db, `/consumption_kwth/${facebookId}`), 
     { ...data })
+    .then(()=> console.log('Running...'))
     .catch(error => console.error('error', error));
 }
 
