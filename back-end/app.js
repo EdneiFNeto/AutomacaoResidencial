@@ -53,6 +53,11 @@ mySerial.on("open", () => {
   });
 });
 
+app.get('/stop', async (request, response) => {
+  myValue = undefined;
+  return response.status(200).json({ message: 'success', myValue: `myValue ${myValue}` });
+});
+
 app.post('/start', async (request, response) => {
 
   const { command, emailRequest, facebookIdRequest } = request.body;

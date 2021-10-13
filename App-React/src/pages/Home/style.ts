@@ -74,3 +74,22 @@ export const TextFlag = styled.Text`
   margin-left: 8px;
   font-family: 'Roboto-Thin';
 `;
+
+export const ViewTabBar = styled.View`
+  padding: 12px 12px;
+  width: 100%;
+  flex-direction: row;
+  align-self: center;
+  background-color: white;
+`;
+
+export const TouchableOpacityTabBar = styled.TouchableOpacity`
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const TextTabBar = styled.Text`
+  text-align: center;
+`;

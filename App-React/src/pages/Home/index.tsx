@@ -1,4 +1,5 @@
 import React, {useEffect, useState, useContext} from 'react';
+import {useNavigation} from '@react-navigation/native';
 
 import {
   Container,
@@ -14,6 +15,9 @@ import {
   TextFlag,
   ContainerDigital,
   TitleInfoMonth,
+  ViewTabBar,
+  TouchableOpacityTabBar,
+  TextTabBar,
 } from './style';
 
 import AuthContext from '../../contexts/auth';
@@ -21,6 +25,8 @@ import bgDigital from '../../assets/bg-digital.png';
 import ShapeComponent from '../../components/shapeComponent';
 import StatusBarComponent from '../../components/StatusBarComponent';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {Alert} from 'react-native';
+
 const Tab = createBottomTabNavigator();
 
 import database from '@react-native-firebase/database';
@@ -28,6 +34,7 @@ import database from '@react-native-firebase/database';
 import Icon from 'react-native-vector-icons/Feather';
 import api from '../../services/api';
 import {User} from '../../model/User';
+import {RootStackParamList} from '../../type';
 
 function LogoutComponent() {
   return (
@@ -132,11 +139,117 @@ function DigialScreen() {
   );
 }
 
+function MyTabBar({state, descriptors, navigation}) {
+  type SigninScreenProp = StackNavigationProp<RootStackParamList, 'Signin'>;
+  const nav = useNavigation<SigninScreenProp>();
+  const {saveUserAsyncStorage} = useContext(AuthContext);
+
+  return (
+    <ViewTabBar>
+      {state.routes.map((route, index) => {
+        const {options} = descriptors[route.key];
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
+
+        let iconName = '';
+        if (index === 0) {
+          iconName = 'pie-chart';
+        } else if (index === 1) {
+          iconName = 'zap';
+        } else {
+          iconName = 'power';
+        }
+
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate({name: route.name, merge: true});
+          }
+
+          if (index === 2) {
+            showDialo();
+          }
+        };
+
+        const onLongPress = () => {
+          navigation.emit({
+            type: 'tabLongPress',
+            target: route.key,
+          });
+        };
+
+        function showDialo() {
+          Alert.alert('Warnning', 'Logout is App?', [
+            {text: 'Cancel', style: 'cancel', onPress: () => {}},
+            {
+              text: 'Confirm',
+              style: 'default',
+              onPress: () => {
+                logoutApp();
+              },
+            },
+          ]);
+        }
+
+        async function logoutApp() {
+          await api
+            .get('/stop')
+            .then(async result => {
+              console.log('result', result.data);
+              if (result.status === 200) {
+                await saveUserAsyncStorage(null); 
+                nav.navigate('Signin');
+              }
+            })
+            .catch(error => console.error('Error', `${error}`));
+        }
+
+        return (
+          <TouchableOpacityTabBar
+            accessibilityRole="button"
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            testID={options.tabBarTestID}
+            onPress={onPress}
+            onLongPress={onLongPress}>
+            <Icon
+              name={iconName}
+              size={24}
+              color={isFocused ? '#39A5C7' : '#C4C4C4'}
+            />
+            <TextTabBar
+              // eslint-disable-next-line react-native/no-inline-styles
+              style={{
+                color: isFocused ? '#39A5C7' : '#222',
+                fontStyle: 'normal',
+                fontFamily: isFocused ? 'Roboto-medium' : 'Roboto-Thin',
+              }}>
+              {label}
+            </TextTabBar>
+          </TouchableOpacityTabBar>
+        );
+      })}
+    </ViewTabBar>
+  );
+}
+
 const Home: React.FC = () => {
   return (
     <>
       <StatusBarComponent />
       <Tab.Navigator
+        tabBar={props => <MyTabBar {...props} />}
+        initialRouteName="Digital"
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color, size}) => {
             let iconName;
@@ -156,16 +269,6 @@ const Home: React.FC = () => {
           tabBarInactiveTintColor: '#C4C4C4',
         })}>
         <Tab.Screen
-          name="Digital"
-          component={DigialScreen}
-          options={{
-            headerShown: false,
-            tabBarItemStyle: {
-              paddingBottom: 5,
-            },
-          }}
-        />
-        <Tab.Screen
           name="Graph"
           component={GraphComponent}
           options={{
@@ -173,6 +276,16 @@ const Home: React.FC = () => {
             tabBarItemStyle: {
               paddingBottom: 5,
               shadowColor: '#ffffff',
+            },
+          }}
+        />
+        <Tab.Screen
+          name="Digital"
+          component={DigialScreen}
+          options={{
+            headerShown: false,
+            tabBarItemStyle: {
+              paddingBottom: 5,
             },
           }}
         />
