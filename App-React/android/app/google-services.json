@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "842760815061",
+    "project_id": "iot---app",
+    "storage_bucket": "iot---app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:842760815061:android:2417201f3a40ebe945fd5c",
+        "android_client_info": {
+          "package_name": "com.restaurant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "842760815061-07d5u9i79e1u7mg8qh0q26tkabb4prbn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyW4scG0weKbsc0kDXPgkX3drk6y3UGU0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "842760815061-07d5u9i79e1u7mg8qh0q26tkabb4prbn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
