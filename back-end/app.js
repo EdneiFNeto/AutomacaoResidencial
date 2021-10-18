@@ -24,7 +24,7 @@ const server = http.createServer(app);
 import SerialPort from 'serialport';
 const ReadLine = SerialPort.parsers.Readline;
 
-const mySerial = new SerialPort("COM25", { 
+const mySerial = new SerialPort("COM29", { 
   baudRate: 9600,
 });
 
@@ -41,7 +41,9 @@ mySerial.on("open", () => {
       const  valueLowecase = String(myValue).toUpperCase();
       try {
         if(valueLowecase === 'ON' && email !== null && facebookId !== null){
-          const dataRequest = { data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: 100.9, value: 0.01, email, facebookId }
+          const random = Math.floor((Math.random() * 10) + 1);
+          const tarifa = random * 0.01;
+          const dataRequest = { data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: random * 100, value: tarifa, email, facebookId }
           sendConsumo(dataRequest);
         } else {
           console.log('Is not running...');

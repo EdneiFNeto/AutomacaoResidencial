@@ -36,7 +36,7 @@ const Signin: React.FC = () => {
   const navigation = useNavigation<SigninScreenProp>();
 
   const {signIn, getUserAsyncStorage, loginFacebook} = useContext(AuthContext);
-  const [visibility, setVisibility] = useState<boolean>(false);
+  const [visibility, setVisibility] = useState<boolean>(true);
   const [email, setEmail] = useState<String>();
   const [isNotExisteUser, setIsExistiUser] = useState<boolean>(false);
 
@@ -45,14 +45,14 @@ const Signin: React.FC = () => {
   }, []);
 
   async function getUserStorage() {
-    setVisibility(true);
-    setInterval(async () => {
-      const user = await getUserAsyncStorage();
-      if (user !== null) {
-        navigation.navigate('Home');
-      }
-      setVisibility(false);
-    }, 3000);
+    const user = await getUserAsyncStorage();
+    console.log('Signin user', user === 'null');
+
+    if (user !== 'null') {
+      navigation.navigate('Home');
+    }
+
+    setVisibility(false);
   }
 
   async function onFacebookButtonPress() {

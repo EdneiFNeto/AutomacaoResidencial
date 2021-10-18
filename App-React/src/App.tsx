@@ -7,17 +7,21 @@ import Routes from './routes';
 const styled = {backgroundColor: '#312e38', flex: 1};
 
 import {AutProvider} from './contexts/auth';
+import {Provider} from 'react-redux';
+import {store} from './store/store';
 
 const App: React.FC = () => {
   return (
-    <NavigationContainer>
-      <StatusBar barStyle="light-content" backgroundColor="#312e38" />
-      <View style={styled}>
-        <AutProvider>
-          <Routes />
-        </AutProvider>
-      </View>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <StatusBar barStyle="light-content" backgroundColor="#312e38" />
+        <View style={styled}>
+          <AutProvider>
+            <Routes />
+          </AutProvider>
+        </View>
+      </NavigationContainer>
+    </Provider>
   );
 };
 
