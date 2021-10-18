@@ -1,16 +1,47 @@
-import React from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {Container, TitleChart} from './style';
 
 import {VictoryLine, VictoryChart, VictoryTheme} from 'victory-native';
+import firestore from '@react-native-firebase/firestore';
+import AuthContext from '../../contexts/auth';
 
 const ChartComponent: React.FC = () => {
-  const data = [
-    {x: 1, y: 2},
-    {x: 2, y: 3},
-    {x: 3, y: 5},
-    {x: 4, y: 4},
-    {x: 5, y: 6},
-  ];
+  const [data, setData] = useState<object[]>([]);
+  const {getUserAsyncStorage} = useContext(AuthContext);
+  const [email, setEmail] = useState<string | null>();
+  const [facebookId, setFacebookId] = useState<string | null>();
+
+  useEffect(() => {
+    async function getUser() {
+      await getUserAsyncStorage().then(user => {
+        const jsonUser = JSON.parse(user as string);
+        setEmail(jsonUser.email);
+        setFacebookId(jsonUser.id);
+      });
+    }
+
+    async function getHistoryKwh() {
+      try {
+        await firestore()
+          .collection('history_kwh')
+          .doc(`${email}`)
+          .collection(`${facebookId}`)
+          .get()
+          .then(res => {
+            let array: object[] = [];
+            res.forEach(dataRes => {
+              array.push({x: dataRes.data().kwh, y: dataRes.data().value});
+            });
+
+            setData(array);
+          });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getHistoryKwh();
+    getUser();
+  }, [getUserAsyncStorage, email, facebookId]);
 
   return (
     <Container>

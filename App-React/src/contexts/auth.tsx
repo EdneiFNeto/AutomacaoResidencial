@@ -11,7 +11,6 @@ interface AuthContextData {
   signIn(user: User | null): Promise<void>;
   signOut(): Promise<void>;
   saveUserAsyncStorage(user: User | null): Promise<void>;
-  saveConsumptionAsyncStorage(consumption: Consumpotion): Promise<void>;
   saveDataInFirebase(user: User): Promise<void>;
   listUserInFirebase(email: string): Promise<object | null>;
   getUserAsyncStorage(): Promise<string | null>;
@@ -23,7 +22,6 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AutProvider: React.FC = ({children}) => {
   const [user, setUser] = useState<User | null>(null);
-  const [consumpotion, setConsumpotion] = useState<Consumpotion | null>(null);
   const db = database();
 
   async function signIn(myUser: User): Promise<void> {
@@ -48,17 +46,6 @@ export const AutProvider: React.FC = ({children}) => {
 
   async function getUserAsyncStorage(): Promise<string | null> {
     const userStorage = await AsynSotorage.getItem('@IoT:user');
-    return userStorage;
-  }
-
-  async function saveConsumptionAsyncStorage(
-    myUser: Consumpotion,
-  ): Promise<void> {
-    await AsynSotorage.setItem('@IoT:consumption', JSON.stringify(myUser));
-  }
-
-  async function getConsumptionAsyncStorage(): Promise<string | null> {
-    const userStorage = await AsynSotorage.getItem('@IoT:consumption');
     return userStorage;
   }
 
@@ -132,8 +119,6 @@ export const AutProvider: React.FC = ({children}) => {
         signed: Boolean(user),
         signIn,
         signOut,
-        saveConsumptionAsyncStorage,
-        getConsumptionAsyncStorage,
         saveUserAsyncStorage,
         saveDataInFirebase,
         listUserInFirebase,
