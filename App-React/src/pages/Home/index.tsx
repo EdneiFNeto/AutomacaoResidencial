@@ -28,13 +28,14 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Alert} from 'react-native';
 
 const Tab = createBottomTabNavigator();
-
 import database from '@react-native-firebase/database';
-
 import Icon from 'react-native-vector-icons/Feather';
 import api from '../../services/api';
 import {User} from '../../model/User';
 import {RootStackParamList} from '../../type';
+import ChartComponent from '../../components/chartComponent';
+import {useDispatch, useSelector} from 'react-redux';
+import {NoteState} from '../../store/consumptionReduce';
 
 function LogoutComponent() {
   return (
@@ -45,28 +46,13 @@ function LogoutComponent() {
 }
 
 function GraphComponent() {
-  return (
-    <Container>
-      <ShapeComponent />
-    </Container>
-  );
-}
-interface Consumpotion {
-  data: string;
-  date_time: string;
-  kwh: number;
-  value: number;
-}
-
-interface AuthCommandRequest {
-  command: string;
-  emailRequest: string;
-  facebookIdRequest: string;
+  return <ChartComponent />;
 }
 
 function DigialScreen() {
-  const [consumption, setConsumption] = useState<Consumpotion | null>(null);
+  const [myconsumption, setConsumption] = useState<Consumpotion | null>(null);
   const {getUserAsyncStorage} = useContext(AuthContext);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     async function getUser() {
@@ -74,15 +60,19 @@ function DigialScreen() {
         .then(userStorage => {
           if (userStorage !== null) {
             const user = JSON.parse(userStorage) as User;
-            const authRequest: AuthCommandRequest = {
-              command: 'on',
-              emailRequest: user.email,
-              facebookIdRequest: String(user.id),
-            };
-            getAPI(authRequest);
+            if (user !== null) {
+              const authRequest: AuthCommandRequest = {
+                command: 'on',
+                emailRequest: user.email,
+                facebookIdRequest: String(user.id),
+              };
+              getAPI(authRequest);
+            } else {
+              console.log('Not exists users');
+            }
           }
         })
-        .catch(error => console.log('Error', error));
+        .catch(error => console.log('getUserAsyncStorage Error', error));
     }
 
     async function getAPI(authRequest: AuthCommandRequest) {
@@ -93,20 +83,19 @@ function DigialScreen() {
             reader();
           }
         })
-        .catch(error => console.error('Error', `${error}`));
+        .catch(error => console.error('getAPI Error', `${error}`));
     }
 
     async function reader() {
       await database()
         .ref('/consumption_kwth')
         .on('child_changed', snapshot => {
-          console.log('A new node has been added', snapshot.val());
           setConsumption(snapshot.val());
         });
     }
 
     getUser();
-  }, [getUserAsyncStorage]);
+  }, [getUserAsyncStorage, dispatch]);
 
   return (
     <Container>
@@ -115,7 +104,7 @@ function DigialScreen() {
         <DigitalBg source={bgDigital} resizeMode="cover">
           <TitleConsumo>Consumption</TitleConsumo>
           <TitleValue>
-            {consumption !== null ? consumption.kwh : '00,00'}{' '}
+            {myconsumption !== null ? myconsumption.kwh : '00,00'}{' '}
           </TitleValue>
           <TitleKWH>KWH</TitleKWH>
         </DigitalBg>
@@ -123,11 +112,11 @@ function DigialScreen() {
         <InfoDigital>
           <TitleInfoMonth>Month</TitleInfoMonth>
           <TitleInfo>
-            R$ {consumption !== null ? consumption.value : '00,00'}
+            R$ {myconsumption !== null ? myconsumption.value : '00,00'}
           </TitleInfo>
           <TitleDate>Date</TitleDate>
           <TitleDateInfo>
-            {consumption !== null ? consumption.date_time : '00/00'}
+            {myconsumption !== null ? myconsumption.date_time : '00/00'}
           </TitleDateInfo>
           <Flag>
             <Icon size={24} name="flag" color="yellow" />
@@ -206,9 +195,8 @@ function MyTabBar({state, descriptors, navigation}) {
           await api
             .get('/stop')
             .then(async result => {
-              console.log('result', result.data);
               if (result.status === 200) {
-                await saveUserAsyncStorage(null); 
+                await saveUserAsyncStorage(null);
                 nav.navigate('Signin');
               }
             })
@@ -217,6 +205,7 @@ function MyTabBar({state, descriptors, navigation}) {
 
         return (
           <TouchableOpacityTabBar
+            key={index}
             accessibilityRole="button"
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={options.tabBarTestID}
