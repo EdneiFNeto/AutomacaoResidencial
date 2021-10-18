@@ -106,7 +106,6 @@ async function saveHistory(data) {
   docRef
   .doc(data.email)
   .collection(data.facebookId)
-  // .set({ ...data })
   .add({ ...data })
   .then((res) => console.log('Success', res.id))
   .catch(error => console.error(error))
