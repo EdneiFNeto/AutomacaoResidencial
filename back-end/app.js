@@ -1,6 +1,6 @@
 import express from 'express';
 import  http from 'http';
-import { getDatabase, ref, set, child, get } from "firebase/database";
+import { getDatabase, ref, set, child, get, push } from "firebase/database";
 import { initializeApp } from "firebase/app";
 import { format } from 'date-fns'
 
@@ -16,6 +16,18 @@ const firebaseConfig = {
 };
 
 initializeApp(firebaseConfig);
+
+import admin from 'firebase-admin';
+import { createRequire } from "module"; // Bring in the ability to create the 'require' method
+const require = createRequire(import.meta.url); // construct the require method
+const serviceAccount = require("./service/serviceAccountKey.json")
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://iot---app-default-rtdb.firebaseio.com"
+});
+
+const dbFirestore = admin.firestore();
 
 const app = express();
 app.use(express.json());
@@ -70,29 +82,34 @@ app.post('/start', async (request, response) => {
   myValue = command;
   
   if(facebookIdRequest === undefined)
-    return response.status(404).json({ status: `FacebookId not found` });
-  
-  const dbRef = ref(getDatabase());
-  const isExistsUser = await get(child(dbRef, `consumption_kwth/${facebookIdRequest}`))
-  
-  if(isExistsUser.val() === null)
-    return response.status(404).json({ status: `Not exists user!` });
+    return response.status(404).json({ error: `FacebookId not found` });
   
   if(emailRequest === undefined)
-    return response.status(404).json({ status: `E-mail not found` });
+    return response.status(404).json({ error: `E-mail not found` });
 
   if(valueLowecase !== 'OFF' && valueLowecase !== 'ON')
-    return response.status(404).json({ status: `Command not found` });
+    return response.status(404).json({ error: `Command not found` });
   
-  return response.status(200).json({ status: valueLowecase === 'OFF' ? 'OFF': 'ON' });
+  return response.status(200).json(request.body);
 });
 
 async function sendConsumo(data) {
   const db = getDatabase();
-  set(ref(db, `/consumption_kwth/${facebookId}`), 
+  set(ref(db, `/consumption_kwt/${facebookId}`), 
     { ...data })
-    .then(()=> console.log('Running...'))
+    .then(async ()=> await saveHistory(data))
     .catch(error => console.error('error', error));
+}
+
+async function saveHistory(data) {
+  const docRef = dbFirestore.collection('history_kwh');
+  docRef
+  .doc(data.email)
+  .collection(data.facebookId)
+  // .set({ ...data })
+  .add({ ...data })
+  .then((res) => console.log('Success', res.id))
+  .catch(error => console.error(error))
 }
 
 server.listen(3000, () => {

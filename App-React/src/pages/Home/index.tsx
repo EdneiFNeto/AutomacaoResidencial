@@ -34,8 +34,6 @@ import api from '../../services/api';
 import {User} from '../../model/User';
 import {RootStackParamList} from '../../type';
 import ChartComponent from '../../components/chartComponent';
-import {useDispatch, useSelector} from 'react-redux';
-import {NoteState} from '../../store/consumptionReduce';
 
 function LogoutComponent() {
   return (
@@ -52,7 +50,6 @@ function GraphComponent() {
 function DigialScreen() {
   const [myconsumption, setConsumption] = useState<Consumpotion | null>(null);
   const {getUserAsyncStorage} = useContext(AuthContext);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     async function getUser() {
@@ -80,22 +77,22 @@ function DigialScreen() {
         .post('/start', authRequest)
         .then(result => {
           if (result.status === 200) {
-            reader();
+            updateDigital();
           }
         })
         .catch(error => console.error('getAPI Error', `${error}`));
     }
 
-    async function reader() {
+    async function updateDigital() {
       await database()
-        .ref('/consumption_kwth')
+        .ref('/consumption_kwt')
         .on('child_changed', snapshot => {
           setConsumption(snapshot.val());
         });
     }
 
     getUser();
-  }, [getUserAsyncStorage, dispatch]);
+  }, [getUserAsyncStorage]);
 
   return (
     <Container>
