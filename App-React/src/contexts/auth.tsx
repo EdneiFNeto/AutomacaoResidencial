@@ -1,20 +1,16 @@
 import React, {createContext, useState} from 'react';
 import AsynSotorage from '@react-native-async-storage/async-storage';
 import {User} from '../model/User';
-import database from '@react-native-firebase/database';
 import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
 import auth from '@react-native-firebase/auth';
-
+import firestore from '@react-native-firebase/firestore';
 interface AuthContextData {
   signed: boolean;
   user: User | null;
-  signIn(user: User | null): Promise<void>;
   signOut(): Promise<void>;
   saveUserAsyncStorage(user: User | null): Promise<void>;
   saveDataInFirebase(user: User): Promise<void>;
-  listUserInFirebase(email: string): Promise<object | null>;
   getUserAsyncStorage(): Promise<string | null>;
-  getConsumptionAsyncStorage(): Promise<string | null>;
   loginFacebook(): Promise<void>;
 }
 
@@ -22,18 +18,6 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AutProvider: React.FC = ({children}) => {
   const [user, setUser] = useState<User | null>(null);
-  const db = database();
-
-  async function signIn(myUser: User): Promise<void> {
-    const list = await listUserInFirebase(myUser.email);
-
-    if (list === null) {
-      throw 'User not found';
-    }
-
-    setUser(list as User);
-    await saveUserAsyncStorage(list as User);
-  }
 
   async function signOut() {
     await AsynSotorage.setItem('@IoT:user', '');
@@ -47,20 +31,6 @@ export const AutProvider: React.FC = ({children}) => {
   async function getUserAsyncStorage(): Promise<string | null> {
     const userStorage = await AsynSotorage.getItem('@IoT:user');
     return userStorage;
-  }
-
-  async function listUserInFirebase(email: string): Promise<object | null> {
-    const snapshot = await db.ref('/users').once('value');
-    if (
-      snapshot
-        .child('-MlgSG1daVHQmRxj-YG4')
-        .child('email')
-        .val() === email
-    ) {
-      return snapshot.child('-Mlez2UwuLHQF0hj2YMF');
-    }
-
-    return null;
   }
 
   async function loginFacebook() {
@@ -94,10 +64,13 @@ export const AutProvider: React.FC = ({children}) => {
   }
 
   async function saveDataInFirebase(user: User): Promise<void> {
-    await db
-      .ref('/users')
-      .push()
-      .set(user);
+    await firestore()
+      .collection('users')
+      .doc(user.email)
+      .collection(`${user.name}`)
+      .add({...user})
+      .then(() => console.log('success save user'))
+      .catch(error => console.error(error));
   }
 
   function getUserFecebook(dataFacebook: User): User {
@@ -117,11 +90,9 @@ export const AutProvider: React.FC = ({children}) => {
       value={{
         user,
         signed: Boolean(user),
-        signIn,
         signOut,
         saveUserAsyncStorage,
         saveDataInFirebase,
-        listUserInFirebase,
         getUserAsyncStorage,
         loginFacebook,
       }}>

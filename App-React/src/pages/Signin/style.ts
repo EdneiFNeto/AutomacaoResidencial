@@ -37,7 +37,10 @@ export const TextInfo = styled.Text`
 export const ButtonLogin = styled(RectButton)`
   padding: 12px;
   width: 100%;
-  background: #39a5c7;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: #c4c4c4;
   border-radius: 8px;
   margin-top: 8px;
 `;
@@ -57,6 +60,7 @@ export const TextButtonFacebook = styled.Text`
   text-align: center;
   font-size: 18px;
   color: #fff;
+  padding-left: 8px;
   font-family: 'Roboto-Regular';
 `;
 
@@ -72,6 +76,8 @@ export const TextButtonLogin = styled.Text`
   text-align: center;
   font-size: 18px;
   font-family: 'Roboto-Regular';
+  color: #fff;
+  padding-left: 8px;
 `;
 export const TextInfoSignUp = styled.View`
   flex-direction: row;
@@ -90,4 +96,14 @@ export const TextSignUp = styled.Text`
   font-size: 14px;
   font-family: 'Roboto-Medium';
   color: #39a5c7;
+`;
+
+export const Divider = styled.View`
+  flex-direction: row;
+`;
+export const Line = styled.View`
+  flex: 1;
+  height: 1px;
+  background-color: #c4c4c4;
+  margin: 20px 0;
 `;
