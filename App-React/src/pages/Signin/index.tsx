@@ -7,25 +7,21 @@ import {
   Container,
   TextWelComer,
   ImageInfo,
-  Input,
   ButtonLogin,
-  TextInfoSignUp,
-  TextInf,
-  TextSignUp,
   TextButtonLogin,
-  ButtonSigUp,
   ButtonLoginFacebook,
   TextOur,
   TextButtonFacebook,
-  TextInfo,
+  Divider,
+  Line,
 } from './style';
 
 import Icon from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import imageInfo from '../../assets/undraw_my_notifications.png';
 import StatusBarComponent from '../../components/StatusBarComponent';
 import {RootStackParamList} from '../../type';
-import {User} from '../../model/User';
 import AuthContext from '../../contexts/auth';
 import ShapeComponent from '../../components/shapeComponent';
 
@@ -35,10 +31,8 @@ const Signin: React.FC = () => {
   type SigninScreenProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
   const navigation = useNavigation<SigninScreenProp>();
 
-  const {signIn, getUserAsyncStorage, loginFacebook} = useContext(AuthContext);
+  const {getUserAsyncStorage, loginFacebook} = useContext(AuthContext);
   const [visibility, setVisibility] = useState<boolean>(true);
-  const [email, setEmail] = useState<String>();
-  const [isNotExisteUser, setIsExistiUser] = useState<boolean>(false);
 
   useEffect(() => {
     getUserStorage();
@@ -46,7 +40,6 @@ const Signin: React.FC = () => {
 
   async function getUserStorage() {
     const user = await getUserAsyncStorage();
-    console.log('Signin user', user === 'null');
 
     if (user !== 'null') {
       navigation.navigate('Home');
@@ -65,29 +58,6 @@ const Signin: React.FC = () => {
   }
 
   async function handleLogin() {
-    setVisibility(true);
-    try {
-      await signIn(getUser()).then(() => {
-        setVisibility(false);
-        setIsExistiUser(false);
-        navigation.navigate('Home');
-      });
-    } catch (error) {
-      setVisibility(false);
-      setIsExistiUser(true);
-      console.log('Error', error);
-    }
-  }
-
-  function getUser(): User {
-    return {
-      name: 'Ednei',
-      email: String(email),
-      first_name: '',
-      id: '',
-      last_name: '',
-      picture: {data: {width: 300, height: 300, url: ''}},
-    };
   }
 
   return (
@@ -100,31 +70,22 @@ const Signin: React.FC = () => {
       <Container>
         <TextWelComer>Welcome Back !</TextWelComer>
         <ImageInfo source={imageInfo} />
-        <Input
-          placeholder="Enter your emial"
-          onChangeText={(text: string) => setEmail(text)}
-        />
-
-        <Input placeholder="Enter your password" />
-        {isNotExisteUser && <TextInfo>Não existe usuário!</TextInfo>}
 
         <ButtonLogin onPress={() => handleLogin()}>
-          <TextButtonLogin>Login</TextButtonLogin>
+          <FontAwesome size={24} name="google" color="#FFF" />
+          <TextButtonLogin>Google Login</TextButtonLogin>
         </ButtonLogin>
 
-        <TextOur> Ou</TextOur>
+        <Divider>
+          <Line />
+          <TextOur>OU</TextOur>
+          <Line />
+        </Divider>
 
         <ButtonLoginFacebook onPress={() => onFacebookButtonPress()}>
           <Icon size={24} name="facebook" color="#FFF" />
-          <TextButtonFacebook>Facebook</TextButtonFacebook>
+          <TextButtonFacebook>Login Facebook</TextButtonFacebook>
         </ButtonLoginFacebook>
-
-        <TextInfoSignUp>
-          <TextInf>Dont have on account? </TextInf>
-          <ButtonSigUp onPress={() => navigation.navigate('SignUp')}>
-            <TextSignUp>Sign Up</TextSignUp>
-          </ButtonSigUp>
-        </TextInfoSignUp>
       </Container>
     </>
   );
