@@ -55,7 +55,7 @@ mySerial.on("open", () => {
         if(valueLowecase === 'ON' && email !== null && facebookId !== null){
           const random = Math.floor((Math.random() * 10) + 1);
           const tarifa = random * 0.01;
-          const dataRequest = { data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: random * 100, value: tarifa, email, facebookId }
+          const dataRequest = { data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: random, value: tarifa, email, facebookId }
           sendConsumo(dataRequest);
         } else {
           console.log('Is not running...');
