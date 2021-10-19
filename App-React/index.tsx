@@ -1,22 +1,15 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {Container, TitleChart} from './style';
+
+import {VictoryLine, VictoryChart, VictoryTheme} from 'victory-native';
 import firestore from '@react-native-firebase/firestore';
 import AuthContext from '../../contexts/auth';
-import {
-  Chart,
-  Line,
-  Area,
-  HorizontalAxis,
-  VerticalAxis,
-  ChartDataPoint,
-} from 'react-native-responsive-linechart';
 
 const ChartComponent: React.FC = () => {
-  const [data, setData] = useState<ChartDataPoint[]>([]);
+  const [data, setData] = useState<object[]>([]);
   const {getUserAsyncStorage} = useContext(AuthContext);
   const [email, setEmail] = useState<string | null>();
   const [facebookId, setFacebookId] = useState<string | null>();
-  const styledChart = {height: 200, width: '100%'};
 
   useEffect(() => {
     async function getUser() {
@@ -33,15 +26,13 @@ const ChartComponent: React.FC = () => {
           .collection('history_kwh')
           .doc(`${email}`)
           .collection(`${facebookId}`)
-          .limit(11)
           .get()
           .then(res => {
-            let array: ChartDataPoint[] = [];
-            res.forEach((dataRes, index) => {
-              array.push({x: index, y: dataRes.data().kwh});
+            let array: object[] = [];
+            res.forEach(dataRes => {
+              array.push({x: dataRes.data().kwh, y: dataRes.data().value});
             });
 
-            array.unshift();
             setData(array);
           });
       } catch (error) {
@@ -57,31 +48,20 @@ const ChartComponent: React.FC = () => {
       {data.length > 0 && (
         <>
           <TitleChart>Chart Consumo de energia </TitleChart>
-
-          <Chart
-            style={styledChart}
-            data={data}
-            padding={{left: 50, bottom: 20, right: 20, top: 20}}>
-            <VerticalAxis
-              tickCount={5}
-              theme={{labels: {formatter: v => v.toFixed(2)}}}
-            />
-            <HorizontalAxis tickCount={5} />
-            <Area
-              theme={{
-                gradient: {
-                  from: {color: '#39A5C7'},
-                  to: {color: '#39A5C7', opacity: 0.4},
-                },
+          <VictoryChart width={350} theme={VictoryTheme.material}>
+            <VictoryLine
+              style={{
+                data: {stroke: '#39A5C7'},
+                parent: {border: '1px solid #ccc'},
               }}
-            />
-            <Line
-              theme={{
-                stroke: {color: '#39A5C7', width: 2},
-                scatter: {default: {width: 4, height: 4, rx: 2}},
+              animate={{
+                duration: 2000,
+                onLoad: {duration: 1000},
               }}
+              data={data}
+              labels={({datum}) => datum.y}
             />
-          </Chart>
+          </VictoryChart>
         </>
       )}
 
