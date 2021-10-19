@@ -11,49 +11,56 @@ import {
   ChartDataPoint,
 } from 'react-native-responsive-linechart';
 
+import ProgressComponent from '../../components/progressComponent';
+interface DataJSON {
+  email: string;
+  facebookId: string;
+}
+
 const ChartComponent: React.FC = () => {
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const {getUserAsyncStorage} = useContext(AuthContext);
-  const [email, setEmail] = useState<string | null>();
-  const [facebookId, setFacebookId] = useState<string | null>();
-  const styledChart = {height: 200, width: '100%'};
+  const [visibility, setVisibility] = useState<boolean>(true);
+  const styledChart = {height: 230, width: '100%'};
 
   useEffect(() => {
     async function getUser() {
-      await getUserAsyncStorage().then(user => {
+      await getUserAsyncStorage().then(async user => {
         const jsonUser = JSON.parse(user as string);
-        setEmail(jsonUser.email);
-        setFacebookId(jsonUser.id);
+        await getHistoryKwh({email: jsonUser.email, facebookId: jsonUser.id});
       });
     }
 
-    async function getHistoryKwh() {
-      try {
-        await firestore()
-          .collection('history_kwh')
-          .doc(`${email}`)
-          .collection(`${facebookId}`)
-          .limit(11)
-          .get()
-          .then(res => {
-            let array: ChartDataPoint[] = [];
-            res.forEach((dataRes, index) => {
-              array.push({x: index, y: dataRes.data().kwh});
-            });
-
-            array.unshift();
-            setData(array);
+    async function getHistoryKwh(dataJson: DataJSON) {
+      await firestore()
+        .collection('history_kwh')
+        .doc(`${dataJson.email}`)
+        .collection(`${dataJson.facebookId}`)
+        .limit(11)
+        .get()
+        .then(res => {
+          let array: ChartDataPoint[] = [];
+          res.forEach((dataRes, index) => {
+            array.push({x: index, y: dataRes.data().kwh});
           });
-      } catch (error) {
-        console.error(error);
-      }
+
+          array.unshift();
+          setData(array);
+          setVisibility(false);
+        })
+        .catch(error => {
+          setVisibility(false);
+          console.error(error);
+        });
     }
-    getHistoryKwh();
+
     getUser();
-  }, [getUserAsyncStorage, email, facebookId]);
+  }, [getUserAsyncStorage]);
 
   return (
     <Container>
+      {visibility && <ProgressComponent />}
+
       {data.length > 0 && (
         <>
           <TitleChart>Chart Consumo de energia </TitleChart>
@@ -61,7 +68,7 @@ const ChartComponent: React.FC = () => {
           <Chart
             style={styledChart}
             data={data}
-            padding={{left: 50, bottom: 20, right: 20, top: 20}}>
+            padding={{left: 40, bottom: 20, right: 20, top: 20}}>
             <VerticalAxis
               tickCount={5}
               theme={{labels: {formatter: v => v.toFixed(2)}}}
