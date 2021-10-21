@@ -189,14 +189,18 @@ function MyTabBar({state, descriptors, navigation}) {
         }
 
         async function logoutApp() {
+          await saveUserAsyncStorage(null)
+            .then(async () => {
+              stopApi();
+              nav.navigate('Signin');
+            })
+            .catch(error => console.error('Error', error));
+        }
+
+        async function stopApi() {
           await api
             .get('/stop')
-            .then(async result => {
-              if (result.status === 200) {
-                await saveUserAsyncStorage(null);
-                nav.navigate('Signin');
-              }
-            })
+            .then(async result => console.log('result', result))
             .catch(error => console.error('Error', `${error}`));
         }
 
