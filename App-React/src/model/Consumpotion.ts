@@ -1,6 +1,9 @@
-interface Consumpotion {
-  data: string;
+export interface Consumpotion {
+  chain: number;
   date_time: string;
-  kwh: number;
-  value: number;
+  email: string;
+  flag: string;
+  potency: number;
+  tariff: string;
+  voltage: number;
 }

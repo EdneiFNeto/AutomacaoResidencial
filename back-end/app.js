@@ -1,6 +1,6 @@
 import express from 'express';
 import  http from 'http';
-import { getDatabase, ref, set, child, get, push } from "firebase/database";
+import { getDatabase, ref, set } from "firebase/database";
 import { initializeApp } from "firebase/app";
 import { format } from 'date-fns'
 
@@ -36,26 +36,39 @@ const server = http.createServer(app);
 import SerialPort from 'serialport';
 const ReadLine = SerialPort.parsers.Readline;
 
-const mySerial = new SerialPort("COM29", { 
+const mySerial = new SerialPort("COM30", { 
   baudRate: 9600,
 });
 
-let myValue;
-let email = null;
-let facebookId = null;
+let _command = null;
+let _email = null;
+let _facebookId = null;
+let _tariff = null;
+let _flag = null;
 
 const parser = new ReadLine({ delimiter: '\r\n' });
 mySerial.pipe(parser);
 
 mySerial.on("open", () => {
   parser.on('data', (data) => {
-    if(myValue !== undefined){
-      const  valueLowecase = String(myValue).toUpperCase();
+    if(_command !== null){
+      const  valueLowecase = String(_command).toUpperCase();
       try {
-        if(valueLowecase === 'ON' && email !== null && facebookId !== null){
-          const random = Math.floor((Math.random() * 10) + 1);
-          const tarifa = random * 0.01;
-          const dataRequest = { data, date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), kwh: random, value: tarifa, email, facebookId }
+        if(valueLowecase === 'ON' && _email !== null && _facebookId !== null && _tariff !== null && _flag !== null){
+          const parser = JSON.parse(data);
+          const { irms, potency, voltage } = parser;
+          const tariff = parseFloat(Number(_tariff * voltage).toFixed(2));
+          
+          const dataRequest = { date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), 
+            voltage,  
+            potency, 
+            tariff, 
+            chain: irms, 
+            email: _email, 
+            facebookId: _facebookId, 
+            flag: _flag 
+          }
+
           sendConsumo(dataRequest);
         } else {
           console.log('Is not running...');
@@ -68,23 +81,31 @@ mySerial.on("open", () => {
 });
 
 app.get('/stop', async (request, response) => {
-  myValue = undefined;
-  return response.status(200).json({ message: 'success', myValue: `myValue ${myValue}` });
+  _command = null;
+  return response.status(200).json({ message: 'Stop is success!' });
 });
 
 app.post('/start', async (request, response) => {
 
-  const { command, emailRequest, facebookIdRequest } = request.body;
+  const { command, email, facebookId, tariff, flag } = request.body;
   const  valueLowecase = String(command).toUpperCase();
   
-  email = emailRequest;
-  facebookId = facebookIdRequest;
-  myValue = command;
+  _email = email;
+  _facebookId = facebookId;
+  _command = command;
+  _tariff = tariff;
+  _flag = flag;
+
+  if(flag === undefined)
+    return response.status(404).json({ error: `Flag not found` });
   
-  if(facebookIdRequest === undefined)
+  if(tariff === undefined)
+    return response.status(404).json({ error: `Tariff not found` });
+  
+  if(facebookId === undefined)
     return response.status(404).json({ error: `FacebookId not found` });
   
-  if(emailRequest === undefined)
+  if(email === undefined)
     return response.status(404).json({ error: `E-mail not found` });
 
   if(valueLowecase !== 'OFF' && valueLowecase !== 'ON')
@@ -95,7 +116,7 @@ app.post('/start', async (request, response) => {
 
 async function sendConsumo(data) {
   const db = getDatabase();
-  set(ref(db, `/consumption_kwt/${facebookId}`), 
+  set(ref(db, `/consumption_kwt/${_facebookId}`), 
     { ...data })
     .then(async ()=> await saveHistory(data))
     .catch(error => console.error('error', error));
@@ -111,7 +132,7 @@ async function saveHistory(data) {
   .catch(error => console.error(error))
 }
 
-server.listen(3000, () => {
+server.listen(3000, '192.168.1.91', () => {
   console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm:ss')}`);
 });
 
