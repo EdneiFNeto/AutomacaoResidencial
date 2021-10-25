@@ -3,16 +3,15 @@ import styled from 'styled-components/native';
 export const Container = styled.View`
   flex: 1;
   justify-content: center;
-  flex-direction: row;
   align-items: center;
-  background-color: #eeeeee;
 `;
 
 export const ContainerDigital = styled.View`
   background-color: #e2e2e2e2;
-  flex: 1;
+  width: 100%;
+  padding: 12px;
+  margin-top: 30%;
   flex-direction: row;
-  padding: 8px;
 `;
 
 export const DigitalBg = styled.ImageBackground`
@@ -24,7 +23,7 @@ export const DigitalBg = styled.ImageBackground`
 export const TitleConsumo = styled.Text`
   font-size: 18px;
   margin-top: 12px;
-  font-family: 'Roboto-Medium';
+  font-family: 'DS-DIGI';
 `;
 
 export const TitleValue = styled.Text`
@@ -46,33 +45,38 @@ export const InfoDigital = styled.View`
 
 export const TitleInfoMonth = styled.Text`
   font-size: 18px;
-  font-family: 'Roboto-Medium';
+  font-family: 'DS-DIGI';
+`;
+
+export const TitleInfoPotency = styled.Text`
+  font-size: 18px;
+  margin-top: 8px;
+  font-family: 'DS-DIGI';
 `;
 
 export const TitleInfo = styled.Text`
   font-size: 16px;
-  font-family: 'Roboto-Regular';
+  font-family: 'DS-DIGI';
 `;
 
 export const TitleDate = styled.Text`
   font-size: 20px;
-  font-family: 'Roboto-Medium';
+  font-family: 'DS-DIGI';
   margin-top: 10px;
 `;
 export const TitleDateInfo = styled.Text`
   font-size: 14px;
-  font-family: 'Roboto-Regular';
+  font-family: 'DS-DIGI';
 `;
 export const Flag = styled.View`
   flex-direction: row;
   margin-top: 12px;
-  font-family: 'Roboto-Regular';
+  font-family: 'DS-DIGI';
 `;
 
 export const TextFlag = styled.Text`
   font-size: 16px;
   margin-left: 8px;
-  font-family: 'Roboto-Thin';
 `;
 
 export const ViewTabBar = styled.View`
@@ -92,4 +96,41 @@ export const TouchableOpacityTabBar = styled.TouchableOpacity`
 
 export const TextTabBar = styled.Text`
   text-align: center;
+`;
+
+export const ContainerPotencyAndChain = styled.View`
+  flex-direction: row;
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+`;
+
+export const DigitalPotence = styled.ImageBackground`
+  width: 50%;
+  height: 150px;
+  padding: 30px;
+  margin-right: 4px;
+`;
+
+export const DigitalChain = styled.ImageBackground`
+  width: 50%;
+  height: 150px;
+  padding: 30px;
+  margin-right: 4px;
+`;
+
+export const TitlePotenceChain = styled.Text`
+  padding-top: 30px;
+  font-size: 18px;
+  text-align: center;
+  color: black;
+  font-family: 'DS-DIGI';
+`;
+
+export const TitleInfoPotenceChain = styled.Text`
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  color: black;
+  font-family: 'DS-DIGI';
 `;

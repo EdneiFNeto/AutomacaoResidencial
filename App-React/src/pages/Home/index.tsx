@@ -18,10 +18,19 @@ import {
   ViewTabBar,
   TouchableOpacityTabBar,
   TextTabBar,
+  ContainerPotencyAndChain,
+  TitlePotenceChain,
+  TitleInfoPotenceChain,
+  DigitalPotence,
+  DigitalChain,
 } from './style';
 
 import AuthContext from '../../contexts/auth';
 import bgDigital from '../../assets/bg-digital.png';
+import bgDigitalGreen from '../../assets/bg-digital-green.png';
+import bgDigitalYellow from '../../assets/bg-digital-yellow.png';
+import bgDigitalRed from '../../assets/bg-digital-red.png';
+
 import ShapeComponent from '../../components/shapeComponent';
 import StatusBarComponent from '../../components/StatusBarComponent';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -52,6 +61,11 @@ function GraphComponent() {
 function DigialScreen() {
   const [myconsumption, setConsumption] = useState<Consumpotion | null>(null);
   const {getUserAsyncStorage} = useContext(AuthContext);
+  const [statusBgDigitalKwh, setStatusBgDigitalKwh] = useState(bgDigital);
+  const [statusBgDigitalPotency, setStatusBgDigitalPotency] = useState(
+    bgDigital,
+  );
+  const [statusBgDigitalChain, setStatusBgDigitalChain] = useState(bgDigital);
 
   useEffect(() => {
     async function getUser() {
@@ -87,10 +101,43 @@ function DigialScreen() {
         .catch(error => console.error('getAPI Error', `${error.message}`));
     }
 
+    function updateDigitalKwh(value: number) {
+      if (value <= 10.0) {
+        setStatusBgDigitalKwh(bgDigitalGreen);
+      } else if (value >= 11.0 && value <= 20.0) {
+        setStatusBgDigitalKwh(bgDigitalYellow);
+      } else {
+        setStatusBgDigitalKwh(bgDigitalRed);
+      }
+    }
+
+    function updateDigitalPotency(value: number) {
+      if (value <= 1000) {
+        setStatusBgDigitalPotency(bgDigitalGreen);
+      } else if (value >= 1001 && value <= 2000) {
+        setStatusBgDigitalPotency(bgDigitalYellow);
+      } else {
+        setStatusBgDigitalPotency(bgDigitalRed);
+      }
+    }
+
+    function updateDigitalChain(value: number) {
+      if (value <= 10) {
+        setStatusBgDigitalChain(bgDigitalGreen);
+      } else if (value >= 11 && value <= 30) {
+        setStatusBgDigitalChain(bgDigitalYellow);
+      } else {
+        setStatusBgDigitalChain(bgDigitalRed);
+      }
+    }
+
     async function updateDigital() {
       await database()
         .ref('/consumption_kwt')
         .on('child_changed', snapshot => {
+          updateDigitalKwh(snapshot.val().kwh);
+          updateDigitalPotency(snapshot.val().potency);
+          updateDigitalChain(snapshot.val().chain);
           setConsumption(snapshot.val());
         });
     }
@@ -102,35 +149,60 @@ function DigialScreen() {
     <Container>
       <ShapeComponent />
       <ContainerDigital>
-        <DigitalBg source={bgDigital} resizeMode="cover">
-          <TitleConsumo>Consumption</TitleConsumo>
+        <DigitalBg source={statusBgDigitalKwh} resizeMode="cover">
+          <TitleConsumo>Consumo em KWH</TitleConsumo>
           <TitleValue>
-            {myconsumption !== null ? myconsumption.chain : '00,00'}{' '}
+            {myconsumption !== null
+              ? Number(myconsumption.kwh).toFixed(2)
+              : '00,00'}{' '}
           </TitleValue>
           <TitleKWH>KWH</TitleKWH>
         </DigitalBg>
 
         <InfoDigital>
-          <TitleInfoMonth>Month</TitleInfoMonth>
+          <TitleInfoMonth>Total Mês</TitleInfoMonth>
           <TitleInfo>
-            R$ {myconsumption !== null ? myconsumption.tariff : '00,00'}
+            R${' '}
+            {myconsumption !== null
+              ? Number(myconsumption.total).toFixed(2)
+              : '00,00'}
           </TitleInfo>
-          <TitleDate>Date</TitleDate>
+
+          <TitleDate>Data</TitleDate>
           <TitleDateInfo>
             {myconsumption !== null ? myconsumption.date_time : '00/00'}
           </TitleDateInfo>
           {myconsumption !== null && (
             <Flag>
               <Icon
-                size={24}
+                size={22}
                 name="flag"
                 color={String(myconsumption?.flag).toLowerCase()}
               />
-              <TextFlag>{String(myconsumption?.flag).toUpperCase()}</TextFlag>
             </Flag>
           )}
         </InfoDigital>
       </ContainerDigital>
+
+      <ContainerPotencyAndChain>
+        <DigitalPotence source={statusBgDigitalPotency} resizeMode="cover">
+          <TitlePotenceChain>Potência</TitlePotenceChain>
+          <TitleInfoPotenceChain>
+            {myconsumption !== null
+              ? `${Number(myconsumption.potency).toFixed(2)} (W)`
+              : '00,00 (W)'}{' '}
+          </TitleInfoPotenceChain>
+        </DigitalPotence>
+
+        <DigitalChain source={statusBgDigitalChain} resizeMode="cover">
+          <TitlePotenceChain>Corrente</TitlePotenceChain>
+          <TitleInfoPotenceChain>
+            {myconsumption !== null
+              ? `${Number(myconsumption.chain).toFixed(2)} (A)`
+              : '00,00 (A)'}{' '}
+          </TitleInfoPotenceChain>
+        </DigitalChain>
+      </ContainerPotencyAndChain>
     </Container>
   );
 }
