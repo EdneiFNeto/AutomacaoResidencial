@@ -6,4 +6,6 @@ export interface Consumpotion {
   potency: number;
   tariff: string;
   voltage: number;
+  kwh: number;
+  total: number;
 }
