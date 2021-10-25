@@ -2,7 +2,7 @@ import express from 'express';
 import  http from 'http';
 import { getDatabase, ref, set } from "firebase/database";
 import { initializeApp } from "firebase/app";
-import { format } from 'date-fns'
+import { format, intervalToDuration, parseISO } from 'date-fns'
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfB7NxypqH-9AzpRa31XGM4srjxP-vJ-w",
@@ -45,6 +45,10 @@ let _email = null;
 let _facebookId = null;
 let _tariff = null;
 let _flag = null;
+let total = 0.0;
+
+const currenteDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+
 
 const parser = new ReadLine({ delimiter: '\r\n' });
 mySerial.pipe(parser);
@@ -58,15 +62,20 @@ mySerial.on("open", () => {
           const parser = JSON.parse(data);
           const { irms, potency, voltage } = parser;
           const tariff = parseFloat(Number(_tariff * voltage).toFixed(2));
+          const kwh = (potency / 1000) * ((tariff * 3)/3600);
+          total += kwh;
           
-          const dataRequest = { date_time: format(new Date(), 'dd/MM/yyyy HH:mm:ss'), 
+          const dataRequest = { 
+            date_time: currenteDate, 
             voltage,  
             potency, 
             tariff, 
             chain: irms, 
             email: _email, 
             facebookId: _facebookId, 
-            flag: _flag 
+            flag: _flag,
+            kwh, 
+            total 
           }
 
           sendConsumo(dataRequest);
