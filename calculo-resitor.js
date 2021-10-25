@@ -33,3 +33,13 @@
 //Laranja,  Laranja,    Preto     => 33   x   (1Ω)    =>  33Ω
 //Marron,   Preto,      Laranja   => 10   x   (1Ω)    =>  10kΩ
 
+//================== Capacitores ===================================
+ //Armazena carga eletrica
+
+//================== Calculo de4 resitor ===================================
+// R(carga) = Tensao / corrente => 2,5 / 0,0707A = 35oms
+
+//Valor de calibracao
+// numeros de espiras = N2
+//VC = N2(N° espiras) / R(Carga) => 2000 / 33 => 60.606
+

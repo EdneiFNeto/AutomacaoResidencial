@@ -34,6 +34,8 @@ import api from '../../services/api';
 import {User} from '../../model/User';
 import {RootStackParamList} from '../../type';
 import ChartComponent from '../../components/chartComponent';
+import {AuthCommandRequest} from '../../model/AuthCommandRequest';
+import {Consumpotion} from '../../model/Consumpotion';
 
 function LogoutComponent() {
   return (
@@ -54,16 +56,18 @@ function DigialScreen() {
   useEffect(() => {
     async function getUser() {
       await getUserAsyncStorage()
-        .then(userStorage => {
+        .then(async userStorage => {
           if (userStorage !== null) {
             const user = JSON.parse(userStorage) as User;
             if (user !== null) {
               const authRequest: AuthCommandRequest = {
                 command: 'on',
-                emailRequest: user.email,
-                facebookIdRequest: String(user.id),
+                email: user.email,
+                facebookId: String(user.id),
+                tariff: 13.0,
+                flag: 'Red',
               };
-              getAPI(authRequest);
+              await getAPI(authRequest);
             } else {
               console.log('Not exists users');
             }
@@ -80,7 +84,7 @@ function DigialScreen() {
             updateDigital();
           }
         })
-        .catch(error => console.error('getAPI Error', `${error}`));
+        .catch(error => console.error('getAPI Error', `${error.message}`));
     }
 
     async function updateDigital() {
@@ -101,7 +105,7 @@ function DigialScreen() {
         <DigitalBg source={bgDigital} resizeMode="cover">
           <TitleConsumo>Consumption</TitleConsumo>
           <TitleValue>
-            {myconsumption !== null ? myconsumption.kwh : '00,00'}{' '}
+            {myconsumption !== null ? myconsumption.chain : '00,00'}{' '}
           </TitleValue>
           <TitleKWH>KWH</TitleKWH>
         </DigitalBg>
@@ -109,16 +113,22 @@ function DigialScreen() {
         <InfoDigital>
           <TitleInfoMonth>Month</TitleInfoMonth>
           <TitleInfo>
-            R$ {myconsumption !== null ? myconsumption.value : '00,00'}
+            R$ {myconsumption !== null ? myconsumption.tariff : '00,00'}
           </TitleInfo>
           <TitleDate>Date</TitleDate>
           <TitleDateInfo>
             {myconsumption !== null ? myconsumption.date_time : '00/00'}
           </TitleDateInfo>
-          <Flag>
-            <Icon size={24} name="flag" color="yellow" />
-            <TextFlag>Yellow card</TextFlag>
-          </Flag>
+          {myconsumption !== null && (
+            <Flag>
+              <Icon
+                size={24}
+                name="flag"
+                color={String(myconsumption?.flag).toLowerCase()}
+              />
+              <TextFlag>{String(myconsumption?.flag).toUpperCase()}</TextFlag>
+            </Flag>
+          )}
         </InfoDigital>
       </ContainerDigital>
     </Container>

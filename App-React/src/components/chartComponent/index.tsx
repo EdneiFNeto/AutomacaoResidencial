@@ -41,7 +41,7 @@ const ChartComponent: React.FC = () => {
         .then(res => {
           let array: ChartDataPoint[] = [];
           res.forEach((dataRes, index) => {
-            array.push({x: index, y: dataRes.data().kwh});
+            array.push({x: index, y: dataRes.data().chain});
           });
 
           array.unshift();

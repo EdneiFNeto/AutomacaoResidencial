@@ -1,6 +1,7 @@
-
-interface AuthCommandRequest {
+export interface AuthCommandRequest {
   command: string;
-  emailRequest: string;
-  facebookIdRequest: string;
+  email: string;
+  facebookId: string;
+  tariff: number;
+  flag: string;
 }
