@@ -1,0 +1,41 @@
+tensao: voltagem da lampada exemplo 127V
+potencia: calculo entre a corrente x tensão
+corrente: calculada pela sensor de corrente ao plugar no fio
+
+data base
+
+ ---------------------------
+| Consumption_real_time_kwh |
+ ---------------------------
+| id(PK):       Integer;    |
+| chain(Corr.): Double;     |
+| timestamp:    DateTime;   |
+| potency:      Integer;    |
+| tariff:       Double;     |
+| email(FK):    String;     |
+ ---------------------------
+
+ ---------------------------
+|     Users                 |
+ ---------------------------
+| id(PK): Integer;          |
+| name:   String;           |
+| email:  String;           |
+| avatar: String;           |
+ ---------------------------
+
+ ---------------------------
+|     History_kwh           |
+ ---------------------------
+| id(PK):       Integer;    |
+| chain(Corr.): Double;     |
+| timestamp:    DateTime;   |
+| potency:      Integer;    |
+| tariff:       Double;     |
+| email(FK):    String;     |
+ ---------------------------
+
+
+
+
+

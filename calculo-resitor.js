@@ -20,12 +20,13 @@
 //================== Restores ==================================================
 
 
-//Verde,    Azul,       Marron  => 56   x   (10Ω)   =>  560Ω
-//Vermelho, Vermelho,   Marron  => 22   x   (10Ω)   =>  220Ω
-//Marron,   Verde,      Marron  => 15   x   (10Ω)   =>  150Ω
-//Amarelo,  Violeta,    Preto   => 47   x   (1Ω)    =>  47Ω
-//Laranja,  Laranja,    Preto   => 33   x   (1Ω)    =>  33Ω
-//Marron,   Preto,      Preto   => 10   x   (1Ω)    =>  10Ω
+//Verde,    Azul,       Marron      => 56   x   (10Ω)   =>  560Ω
+//Vermelho, Vermelho,   Marron      => 22   x   (10Ω)   =>  220Ω
+//Marron,   Verde,      Marron      => 15   x   (10Ω)   =>  150Ω
+//Amarelo,  Violeta,    Preto       => 47   x   (1Ω)    =>  47Ω
+//Laranja,  Laranja,    Preto       => 33   x   (1Ω)    =>  33Ω
+//Marron,   Preto,      Preto       => 10   x   (1Ω)    =>  10Ω
+//Marron,   Preto,      vermelho    => 10   x   (100Ω)    =>  10Ω
 
 
 //================== Componentes do Circuito ===================================

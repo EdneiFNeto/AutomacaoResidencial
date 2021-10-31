@@ -106,3 +106,10 @@ server.listen(3000, () => {
   console.log(`Server run in `);
 });
 ```
+
+## Configuração .Env
+Adicionar as linhas a baixo para segurança do projeto
+
+IP=IP
+AUTHORIZATION_TOKEN=AUTH_TOKEN
+PROJECT_ID=PROJECT_ID

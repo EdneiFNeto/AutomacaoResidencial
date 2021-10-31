@@ -4,4 +4,5 @@ export interface AuthCommandRequest {
   facebookId: string;
   tariff: number;
   flag: string;
+  userToken: string;
 }

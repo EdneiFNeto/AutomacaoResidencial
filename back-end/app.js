@@ -2,24 +2,36 @@ import express from 'express';
 import  http from 'http';
 import { getDatabase, ref, set } from "firebase/database";
 import { initializeApp } from "firebase/app";
-import { format, intervalToDuration, parseISO } from 'date-fns'
+import { format } from 'date-fns'
+import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const api = axios.create({
+  baseURL: 'https://fcm.googleapis.com/fcm',
+  headers: { 
+    'Content-Type':'application/json', 
+    'project_id': `${process.env.PROJECT_ID}`, 
+    'Authorization': `key=${process.env.AUTHORIZATION_TOKEN}` 
+  }
+});
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCfB7NxypqH-9AzpRa31XGM4srjxP-vJ-w",
+  apiKey: `${process.env.API_KEY}`,
   authDomain: "iot---app.firebaseapp.com",
   databaseURL: "https://iot---app-default-rtdb.firebaseio.com",
   projectId: "iot---app",
   storageBucket: "iot---app.appspot.com",
-  messagingSenderId: "842760815061",
-  appId: "1:842760815061:web:e0913baf755a469d45fd5c",
+  messagingSenderId: `${process.env.MESSAGIN_SENDER_ID}`,
+  appId: `${process.env.APP_ID}`,
   measurementId: "G-9NBPZD7GN1"
 };
 
 initializeApp(firebaseConfig);
 
 import admin from 'firebase-admin';
-import { createRequire } from "module"; // Bring in the ability to create the 'require' method
-const require = createRequire(import.meta.url); // construct the require method
+import { createRequire } from "module"; 
+const require = createRequire(import.meta.url);
 const serviceAccount = require("./service/serviceAccountKey.json")
 
 admin.initializeApp({
@@ -36,7 +48,7 @@ const server = http.createServer(app);
 import SerialPort from 'serialport';
 const ReadLine = SerialPort.parsers.Readline;
 
-const mySerial = new SerialPort("COM30", { 
+const mySerial = new SerialPort("COM19", { 
   baudRate: 9600,
 });
 
@@ -45,10 +57,10 @@ let _email = null;
 let _facebookId = null;
 let _tariff = null;
 let _flag = null;
+let _userToken = undefined;
 let total = 0.0;
 
 const currenteDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-
 
 const parser = new ReadLine({ delimiter: '\r\n' });
 mySerial.pipe(parser);
@@ -58,7 +70,9 @@ mySerial.on("open", () => {
     if(_command !== null){
       const  valueLowecase = String(_command).toUpperCase();
       try {
-        if(valueLowecase === 'ON' && _email !== null && _facebookId !== null && _tariff !== null && _flag !== null){
+        if(valueLowecase === 'ON' && _email !== undefined && _facebookId !== undefined && _tariff !== undefined 
+          && _flag !== undefined && _userToken !== undefined){
+          
           const parser = JSON.parse(data);
           const { irms, potency, voltage } = parser;
           const tariff = parseFloat(Number(_tariff * voltage).toFixed(2));
@@ -79,6 +93,11 @@ mySerial.on("open", () => {
           }
 
           sendConsumo(dataRequest);
+
+          if(kwh > 10 && _userToken !== undefined) {
+            sendNotification(getNotification({ kwh, tariff }));
+          }
+
         } else {
           console.log('Is not running...');
         }
@@ -96,7 +115,7 @@ app.get('/stop', async (request, response) => {
 
 app.post('/start', async (request, response) => {
 
-  const { command, email, facebookId, tariff, flag } = request.body;
+  const { command, email, facebookId, tariff, flag, userToken } = request.body;
   const  valueLowecase = String(command).toUpperCase();
   
   _email = email;
@@ -104,7 +123,11 @@ app.post('/start', async (request, response) => {
   _command = command;
   _tariff = tariff;
   _flag = flag;
+  _userToken = userToken;
 
+  if(userToken === undefined)
+    return response.status(404).json({ error: `Token user not found` });
+  
   if(flag === undefined)
     return response.status(404).json({ error: `Flag not found` });
   
@@ -122,6 +145,33 @@ app.post('/start', async (request, response) => {
   
   return response.status(200).json(request.body);
 });
+
+function getNotification({ kwh, tariff }) {
+  return {
+    to: `${_userToken}`,
+    notification: {
+      title: "Iot - Consumo de energia",
+      body: `Consumo atual ${formatValue(kwh)}kwh\n com valor R$ ${formatValue(tariff)}`,
+      mutable_content: true,
+      sound: "Tri-tone"
+    },
+    data: {
+      "name": "Consumo energia",
+      "type": "Atualizando consumo"
+    },
+  }
+}
+
+function formatValue(value){
+  return  String(Number(value).toFixed(2)).replace(".", ",")
+}
+
+function sendNotification(notificationRequest){
+    const { to, notification, data } = notificationRequest; 
+    api.post('/send', { to, notification, data })
+      .then((resuslt)=> console.log('send notification', resuslt.data))
+      .catch(error => console.log('Error notification', error))
+}
 
 async function sendConsumo(data) {
   const db = getDatabase();
@@ -141,7 +191,7 @@ async function saveHistory(data) {
   .catch(error => console.error(error))
 }
 
-server.listen(3000, '192.168.1.91', () => {
+server.listen(3000, process.env.IP, () => {
   console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm:ss')}`);
 });
 
