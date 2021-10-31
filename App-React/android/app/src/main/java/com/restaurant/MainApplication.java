@@ -8,6 +8,8 @@ import android.content.pm.Signature;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -22,7 +24,10 @@ import java.util.List;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -51,6 +56,9 @@ public class MainApplication extends Application implements ReactApplication {
                 }
             };
 
+    private String taskResult;
+    private String TAG = "MainApplicationLog";
+
     @Override
     public ReactNativeHost getReactNativeHost() {
         return mReactNativeHost;
@@ -61,6 +69,17 @@ public class MainApplication extends Application implements ReactApplication {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
         initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, task.getException().getMessage());
+                        return;
+                    }
+
+                    taskResult = task.getResult();
+                    Log.e(TAG, "taskResult: " + taskResult);
+                });
 
         try {
             PackageInfo info = getPackageManager().getPackageInfo(

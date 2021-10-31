@@ -12,7 +12,6 @@ import {
   TitleDate,
   TitleDateInfo,
   Flag,
-  TextFlag,
   ContainerDigital,
   TitleInfoMonth,
   ViewTabBar,
@@ -80,6 +79,7 @@ function DigialScreen() {
                 facebookId: String(user.id),
                 tariff: 13.0,
                 flag: 'Red',
+                userToken: user.token,
               };
               await getAPI(authRequest);
             } else {
@@ -282,7 +282,7 @@ function MyTabBar({state, descriptors, navigation}) {
         async function stopApi() {
           await api
             .get('/stop')
-            .then(async result => console.log('result', result))
+            .then(async result => console.log('result', result.data))
             .catch(error => console.error('Error', `${error}`));
         }
 

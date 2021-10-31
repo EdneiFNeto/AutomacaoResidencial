@@ -4,6 +4,8 @@ import {User} from '../model/User';
 import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import messaging from '@react-native-firebase/messaging';
+
 interface AuthContextData {
   signed: boolean;
   user: User | null;
@@ -57,10 +59,34 @@ export const AutProvider: React.FC = ({children}) => {
       .signInWithCredential(facebookCredential)
       .then(async dataFacebook => {
         const myUser = dataFacebook.additionalUserInfo?.profile as User;
-        await saveUserAsyncStorage(getUserFecebook(myUser)).then(() =>
-          saveDataInFirebase(myUser),
+        const {
+          email,
+          name,
+          first_name,
+          id,
+          last_name,
+          picture,
+        } = getUserFecebook(myUser);
+
+        const token = await getToken();
+        const newUser = {
+          email,
+          name,
+          first_name,
+          id,
+          last_name,
+          picture,
+          token,
+        };
+        await saveUserAsyncStorage(newUser).then(() =>
+          saveDataInFirebase(newUser),
         );
       });
+  }
+
+  async function getToken(): Promise<string> {
+    const token = messaging().getToken();
+    return token;
   }
 
   async function saveDataInFirebase(user: User): Promise<void> {
@@ -74,7 +100,16 @@ export const AutProvider: React.FC = ({children}) => {
   }
 
   function getUserFecebook(dataFacebook: User): User {
-    const {name, email, first_name, id, last_name, picture} = dataFacebook;
+    const {
+      name,
+      email,
+      first_name,
+      id,
+      last_name,
+      picture,
+      token,
+    } = dataFacebook;
+
     return {
       name,
       first_name,
@@ -82,6 +117,7 @@ export const AutProvider: React.FC = ({children}) => {
       id,
       last_name,
       picture,
+      token,
     };
   }
 

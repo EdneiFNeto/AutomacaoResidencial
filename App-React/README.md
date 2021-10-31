@@ -21,7 +21,7 @@ Para inicializar projeto  necessário executas o comando a baixo
 ## create SH1
 gradlew signingReport
 
-## Instalar pacotes
+## Instalar ou atualizar pacotes
 
 yarn install
 
@@ -34,3 +34,10 @@ yarn android or android ios
 Para logar com uma conta no Facebook, é necessesario de uma conta de usuário de teste.
 - Usuário 1: jose_vkkvtfh_gomes@tfbnw.net, senha: jose123456	 
 - Usuário 2: ana_ldbaeng_maria@tfbnw.net, senha: ana123456
+
+## Confiuguração do projeto
+
+Criar um arquivo .env na raiz do projeto e adicionar as variveis.
+
+IP=SEU_IP
+WEB_CLIENT_ID=SEU_WEB_CLIENT_ID

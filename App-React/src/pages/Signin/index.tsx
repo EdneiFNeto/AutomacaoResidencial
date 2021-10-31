@@ -108,7 +108,7 @@ const Signin: React.FC = () => {
         </Divider>
         <ButtonLoginFacebook onPress={() => onFacebookButtonPress()}>
           <Icon size={24} name="facebook" color="#FFF" />
-          <TextButtonFacebook>Login Facebook</TextButtonFacebook>
+          <TextButtonFacebook>Facebook Login </TextButtonFacebook>
         </ButtonLoginFacebook>
       </Container>
     </>
