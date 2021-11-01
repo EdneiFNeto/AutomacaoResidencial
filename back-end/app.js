@@ -52,38 +52,41 @@ const mySerial = new SerialPort("COM19", {
   baudRate: 9600,
 });
 
-let _command = null;
-let _email = null;
-let _facebookId = null;
-let _tariff = null;
-let _flag = null;
+let _command = undefined;
+let _email = undefined;
+let _facebookId = undefined;
+let _tariff = undefined;
+let _flag = undefined;
 let _userToken = undefined;
 let total = 0.0;
 
-const currenteDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+const currenteDate = format(new Date(), 'yyyy-MM-dd');
 
 const parser = new ReadLine({ delimiter: '\r\n' });
 mySerial.pipe(parser);
 
 mySerial.on("open", () => {
   parser.on('data', (data) => {
-    if(_command !== null){
+    if(_command !== undefined){
       const  valueLowecase = String(_command).toUpperCase();
       try {
-        if(valueLowecase === 'ON' && _email !== undefined && _facebookId !== undefined && _tariff !== undefined 
-          && _flag !== undefined && _userToken !== undefined){
+        if(valueLowecase === 'ON' && _email !== undefined 
+          && _facebookId !== undefined && _tariff !== undefined 
+          && _flag !== undefined && _userToken !== undefined)
+        {
           
           const parser = JSON.parse(data);
           const { irms, potency, voltage } = parser;
-          const tariff = parseFloat(Number(_tariff * voltage).toFixed(2));
-          const kwh = (potency / 1000) * ((tariff * 3)/3600);
-          total += kwh;
+          const value   = _tariff / 10800;
+          const kwh     = irms / 1000; 
+          const result  = kwh * value; 
+          total += result;
           
           const dataRequest = { 
             date_time: currenteDate, 
             voltage,  
             potency, 
-            tariff, 
+            tariff: _tariff, 
             chain: irms, 
             email: _email, 
             facebookId: _facebookId, 
@@ -92,14 +95,15 @@ mySerial.on("open", () => {
             total 
           }
 
-          sendConsumo(dataRequest);
+          console.log('kwh', kwh);
+          
+          if(kwh > 1){
+            sendConsumo(dataRequest);
+          }
 
           if(kwh > 10 && _userToken !== undefined) {
             sendNotification(getNotification({ kwh, tariff }));
           }
-
-        } else {
-          console.log('Is not running...');
         }
       } catch (error) {
         console.log('Error', error);
@@ -109,7 +113,7 @@ mySerial.on("open", () => {
 });
 
 app.get('/stop', async (request, response) => {
-  _command = null;
+  _command = undefined;
   return response.status(200).json({ message: 'Stop is success!' });
 });
 
@@ -126,22 +130,22 @@ app.post('/start', async (request, response) => {
   _userToken = userToken;
 
   if(userToken === undefined)
-    return response.status(404).json({ error: `Token user not found` });
+    return response.status(400).json({ error: `Token user not found` });
   
   if(flag === undefined)
-    return response.status(404).json({ error: `Flag not found` });
+    return response.status(400).json({ error: `Flag not found` });
   
   if(tariff === undefined)
-    return response.status(404).json({ error: `Tariff not found` });
+    return response.status(400).json({ error: `Tariff not found` });
   
   if(facebookId === undefined)
-    return response.status(404).json({ error: `FacebookId not found` });
+    return response.status(400).json({ error: `FacebookId not found` });
   
   if(email === undefined)
-    return response.status(404).json({ error: `E-mail not found` });
+    return response.status(400).json({ error: `E-mail not found` });
 
   if(valueLowecase !== 'OFF' && valueLowecase !== 'ON')
-    return response.status(404).json({ error: `Command not found` });
+    return response.status(400).json({ error: `Command not found` });
   
   return response.status(200).json(request.body);
 });
