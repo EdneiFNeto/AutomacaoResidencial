@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import {format} from 'date-fns';
 
 import {
   Container,
@@ -58,7 +59,10 @@ function GraphComponent() {
 }
 
 function DigialScreen() {
+  const currenteDate = format(new Date(), 'yyyy-MM-dd');
+  const dateActual = format(new Date(), 'dd/MM/yyyy');
   const [myconsumption, setConsumption] = useState<Consumpotion | null>(null);
+  const [email, setEmail] = useState<string>();
   const {getUserAsyncStorage} = useContext(AuthContext);
   const [statusBgDigitalKwh, setStatusBgDigitalKwh] = useState(bgDigital);
   const [statusBgDigitalPotency, setStatusBgDigitalPotency] = useState(
@@ -81,6 +85,7 @@ function DigialScreen() {
                 flag: 'Red',
                 userToken: user.token,
               };
+              setEmail(user.email);
               await getAPI(authRequest);
             } else {
               console.log('Not exists users');
@@ -135,15 +140,21 @@ function DigialScreen() {
       await database()
         .ref('/consumption_kwt')
         .on('child_changed', snapshot => {
-          updateDigitalKwh(snapshot.val().kwh);
-          updateDigitalPotency(snapshot.val().potency);
-          updateDigitalChain(snapshot.val().chain);
-          setConsumption(snapshot.val());
+          if (
+            snapshot.val().date_time === currenteDate &&
+            snapshot.val().email === email &&
+            email !== undefined
+          ) {
+            updateDigitalKwh(snapshot.val().kwh);
+            updateDigitalPotency(snapshot.val().potency);
+            updateDigitalChain(snapshot.val().chain);
+            setConsumption(snapshot.val());
+          }
         });
     }
 
     getUser();
-  }, [getUserAsyncStorage]);
+  }, [getUserAsyncStorage, currenteDate, email]);
 
   return (
     <Container>
@@ -160,7 +171,7 @@ function DigialScreen() {
         </DigitalBg>
 
         <InfoDigital>
-          <TitleInfoMonth>Total Mês</TitleInfoMonth>
+          <TitleInfoMonth>Total Mes</TitleInfoMonth>
           <TitleInfo>
             R${' '}
             {myconsumption !== null
@@ -170,7 +181,7 @@ function DigialScreen() {
 
           <TitleDate>Data</TitleDate>
           <TitleDateInfo>
-            {myconsumption !== null ? myconsumption.date_time : '00/00'}
+            {myconsumption !== null ? myconsumption.date_time : dateActual}
           </TitleDateInfo>
           {myconsumption !== null && (
             <Flag>
@@ -186,11 +197,11 @@ function DigialScreen() {
 
       <ContainerPotencyAndChain>
         <DigitalPotence source={statusBgDigitalPotency} resizeMode="cover">
-          <TitlePotenceChain>Potência</TitlePotenceChain>
+          <TitlePotenceChain>Potencia</TitlePotenceChain>
           <TitleInfoPotenceChain>
             {myconsumption !== null
-              ? `${Number(myconsumption.potency).toFixed(2)} (W)`
-              : '00,00 (W)'}{' '}
+              ? `${Number(myconsumption.potency)} (W)`
+              : '00 (W)'}{' '}
           </TitleInfoPotenceChain>
         </DigitalPotence>
 

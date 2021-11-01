@@ -1,0 +1,29 @@
+Calcular uma lampada:
+
+ONS: valor Kilowatts/ hora = 13,00;
+KiloWatts é a carga necessaria para alimentar 
+uma carga de 1 watts durante 1 hora.
+
+tarifa = 13,00;
+
+Valor = tarifa/ 3600 
+valor = 13,00 / 3600 => 0,0036;
+Valor = 0,0036;
+
+-----------------------------------
+corrente = 9Watts
+KWH = corrente / 1000;
+KWH = 0,009;
+
+------------------------------------
+
+Media de consumo = kwh x valor;
+MC(R$) =  0,009 x 0,0036;
+MC(R$) =  R$ 0,00003
+
+
+
+
+
+
+
