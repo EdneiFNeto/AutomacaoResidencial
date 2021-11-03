@@ -35,7 +35,7 @@ export const AutProvider: React.FC = ({children}) => {
     return userStorage;
   }
 
-  async function loginFacebook() {
+  async function loginFacebook(): Promise<void> {
     const result = await LoginManager.logInWithPermissions([
       'public_profile',
       'email',
@@ -55,33 +55,26 @@ export const AutProvider: React.FC = ({children}) => {
       data.accessToken,
     );
 
-    await auth()
-      .signInWithCredential(facebookCredential)
-      .then(async dataFacebook => {
-        const myUser = dataFacebook.additionalUserInfo?.profile as User;
-        const {
-          email,
-          name,
-          first_name,
-          id,
-          last_name,
-          picture,
-        } = getUserFecebook(myUser);
+    const credential = await auth().signInWithCredential(facebookCredential);
 
-        const token = await getToken();
-        const newUser = {
-          email,
-          name,
-          first_name,
-          id,
-          last_name,
-          picture,
-          token,
-        };
-        await saveUserAsyncStorage(newUser).then(() =>
-          saveDataInFirebase(newUser),
-        );
-      });
+    const myUser = credential.additionalUserInfo?.profile as User;
+
+    const {email, name, first_name, id, last_name, picture} = getUserFecebook(
+      myUser,
+    );
+
+    const token = await getToken();
+    const newUser = {
+      email,
+      name,
+      first_name,
+      id,
+      last_name,
+      picture,
+      token,
+    };
+
+    await saveUserAsyncStorage(newUser).then(() => saveDataInFirebase(newUser));
   }
 
   async function getToken(): Promise<string> {
@@ -90,13 +83,20 @@ export const AutProvider: React.FC = ({children}) => {
   }
 
   async function saveDataInFirebase(user: User): Promise<void> {
-    await firestore()
-      .collection('users')
+    const collection = firestore().collection('users');
+    const users = await collection
       .doc(user.email)
-      .collection(`${user.name}`)
-      .add({...user})
-      .then(() => console.log('success save user'))
-      .catch(error => console.error(error));
+      .collection(user.name)
+      .get();
+
+    if (users.size === 0) {
+      collection
+        .doc(user.email)
+        .collection(`${user.name}`)
+        .add({...user})
+        .then(() => console.log('success save user'))
+        .catch(error => console.error(error));
+    }
   }
 
   function getUserFecebook(dataFacebook: User): User {
