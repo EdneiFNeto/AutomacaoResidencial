@@ -164,7 +164,7 @@ function DigialScreen() {
           <TitleConsumo>Consumo em KWH</TitleConsumo>
           <TitleValue>
             {myconsumption !== null
-              ? Number(myconsumption.kwh).toFixed(2)
+              ? Number(myconsumption.kwh).toFixed(3)
               : '00,00'}{' '}
           </TitleValue>
           <TitleKWH>KWH</TitleKWH>

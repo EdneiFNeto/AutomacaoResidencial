@@ -18,10 +18,10 @@ const api = axios.create({
 
 const firebaseConfig = {
   apiKey: `${process.env.API_KEY}`,
-  authDomain: "iot---app.firebaseapp.com",
-  databaseURL: "https://iot---app-default-rtdb.firebaseio.com",
-  projectId: "iot---app",
-  storageBucket: "iot---app.appspot.com",
+  authDomain: "iot-app-12a83.firebaseapp.com",
+  databaseURL: "https://iot-app-12a83-default-rtdb.firebaseio.com",
+  projectId: "iot-app-12a83",
+  storageBucket: "iot-app-12a83.appspot.com",
   messagingSenderId: `${process.env.MESSAGIN_SENDER_ID}`,
   appId: `${process.env.APP_ID}`,
   measurementId: "G-9NBPZD7GN1"
@@ -36,7 +36,7 @@ const serviceAccount = require("./service/serviceAccountKey.json")
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://iot---app-default-rtdb.firebaseio.com"
+  databaseURL: "https://iot-app-12a83-default-rtdb.firebaseio.com"
 });
 
 const dbFirestore = admin.firestore();
@@ -95,14 +95,11 @@ mySerial.on("open", () => {
             total 
           }
 
-          console.log('kwh', kwh);
-          
-          if(kwh > 1){
-            sendConsumo(dataRequest);
-          }
+          console.log(kwh)
+          sendConsumo(dataRequest);
 
           if(kwh > 10 && _userToken !== undefined) {
-            sendNotification(getNotification({ kwh, tariff }));
+            sendNotification(getNotification({ kwh, tariff: _tariff }));
           }
         }
       } catch (error) {
