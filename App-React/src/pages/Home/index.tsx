@@ -45,6 +45,7 @@ import {RootStackParamList} from '../../type';
 import ChartComponent from '../../components/chartComponent';
 import {AuthCommandRequest} from '../../model/AuthCommandRequest';
 import {Consumpotion} from '../../model/Consumpotion';
+import {Preferences} from '../../model/Preferences';
 
 function LogoutComponent() {
   return (
@@ -63,26 +64,33 @@ function DigialScreen() {
   const dateActual = format(new Date(), 'dd/MM/yyyy');
   const [myconsumption, setConsumption] = useState<Consumpotion | null>(null);
   const [email, setEmail] = useState<string>();
-  const {getUserAsyncStorage} = useContext(AuthContext);
+  const {getUserAsyncStorage, getPreferences} = useContext(AuthContext);
   const [statusBgDigitalKwh, setStatusBgDigitalKwh] = useState(bgDigital);
   const [statusBgDigitalPotency, setStatusBgDigitalPotency] = useState(
     bgDigital,
   );
+
   const [statusBgDigitalChain, setStatusBgDigitalChain] = useState(bgDigital);
 
   useEffect(() => {
+    async function getPreferencesStorage(): Promise<Preferences> {
+      const myPreferences = await getPreferences();
+      return JSON.parse(myPreferences as string) as Preferences;
+    }
+
     async function getUser() {
       await getUserAsyncStorage()
         .then(async userStorage => {
           if (userStorage !== null) {
             const user = JSON.parse(userStorage) as User;
+            const {tarrif, flag} = await getPreferencesStorage();
             if (user !== null) {
               const authRequest: AuthCommandRequest = {
                 command: 'on',
                 email: user.email,
                 facebookId: String(user.id),
-                tariff: 13.0,
-                flag: 'Red',
+                tariff: tarrif,
+                flag,
                 userToken: user.token,
               };
               setEmail(user.email);
@@ -175,7 +183,7 @@ function DigialScreen() {
           <TitleInfo>
             R${' '}
             {myconsumption !== null
-              ? Number(myconsumption.total).toFixed(2)
+              ? Number(myconsumption.total).toFixed(3)
               : '00,00'}
           </TitleInfo>
 
