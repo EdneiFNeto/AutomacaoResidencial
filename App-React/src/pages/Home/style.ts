@@ -134,3 +134,9 @@ export const TitleInfoPotenceChain = styled.Text`
   color: black;
   font-family: 'DS-DIGI';
 `;
+export const TitleInfoRealTimeValue = styled.Text`
+  font-size: 18px;
+  margin-top: 8px;
+  color: black;
+  font-family: 'DS-DIGI';
+`;

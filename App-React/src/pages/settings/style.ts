@@ -88,18 +88,15 @@ export const TitleFlag = styled.Text`
 export const ButtonSavePreferences = styled(RectButton)`
   padding: 12px;
   width: 300px;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  margin-left: -150px;
+  margin-top: 32px;
+  align-self: center;
+  margin-top: 32px;
   margin-bottom: 12px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   background: #39a5c7;
   border-radius: 8px;
-  margin-top: 8px;
-  margin-right: 10px;
 `;
 
 export const TextButtonPreferences = styled.Text`

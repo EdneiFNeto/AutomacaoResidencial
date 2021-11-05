@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useEffect, useState, useContext, useCallback} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {format} from 'date-fns';
 
@@ -23,6 +23,7 @@ import {
   TitleInfoPotenceChain,
   DigitalPotence,
   DigitalChain,
+  TitleInfoRealTimeValue,
 } from './style';
 
 import AuthContext from '../../contexts/auth';
@@ -46,6 +47,8 @@ import ChartComponent from '../../components/chartComponent';
 import {AuthCommandRequest} from '../../model/AuthCommandRequest';
 import {Consumpotion} from '../../model/Consumpotion';
 import {Preferences} from '../../model/Preferences';
+import {StackNavigationProp} from '@react-navigation/stack';
+import firestore from '@react-native-firebase/firestore';
 
 function LogoutComponent() {
   return (
@@ -62,6 +65,7 @@ function GraphComponent() {
 function DigialScreen() {
   const currenteDate = format(new Date(), 'yyyy-MM-dd');
   const dateActual = format(new Date(), 'dd/MM/yyyy');
+
   const [myconsumption, setConsumption] = useState<Consumpotion | null>(null);
   const [email, setEmail] = useState<string>();
   const {getUserAsyncStorage, getPreferences} = useContext(AuthContext);
@@ -71,8 +75,28 @@ function DigialScreen() {
   );
 
   const [statusBgDigitalChain, setStatusBgDigitalChain] = useState(bgDigital);
+  const [totalMont, setTotalMont] = useState<number>(0);
 
   useEffect(() => {
+    async function getLastDataHistory(): Promise<void> {
+      const history = await firestore()
+        .collection('history_kwh')
+        .doc('fretasnetoednei@gmail.com')
+        .collection('2938944626329197')
+        .get();
+
+      const query = await history.query
+        .orderBy('created_at', 'desc')
+        .limit(1)
+        .get();
+
+      const map = query.docs.map(res => {
+        return res.data();
+      });
+
+      setTotalMont(map[0].total);
+    }
+
     async function getPreferencesStorage(): Promise<Preferences> {
       const myPreferences = await getPreferences();
       return JSON.parse(myPreferences as string) as Preferences;
@@ -144,8 +168,8 @@ function DigialScreen() {
       }
     }
 
-    async function updateDigital() {
-      await database()
+    function updateDigital() {
+      database()
         .ref('/consumption_kwt')
         .on('child_changed', snapshot => {
           if (
@@ -162,7 +186,8 @@ function DigialScreen() {
     }
 
     getUser();
-  }, [getUserAsyncStorage, currenteDate, email]);
+    getLastDataHistory();
+  }, [getUserAsyncStorage, currenteDate, email, getPreferences]);
 
   return (
     <Container>
@@ -172,7 +197,7 @@ function DigialScreen() {
           <TitleConsumo>Consumo em KWH</TitleConsumo>
           <TitleValue>
             {myconsumption !== null
-              ? Number(myconsumption.kwh).toFixed(3)
+              ? Number(myconsumption.kwh).toFixed(5)
               : '00,00'}{' '}
           </TitleValue>
           <TitleKWH>KWH</TitleKWH>
@@ -183,14 +208,20 @@ function DigialScreen() {
           <TitleInfo>
             R${' '}
             {myconsumption !== null
-              ? Number(myconsumption.total).toFixed(3)
+              ? Number(myconsumption.total + totalMont).toFixed(7)
+              : '00,00'}
+          </TitleInfo>
+
+          <TitleInfoRealTimeValue>Consumo (R$)</TitleInfoRealTimeValue>
+          <TitleInfo>
+            R${' '}
+            {myconsumption !== null
+              ? Number(myconsumption.total).toFixed(7)
               : '00,00'}
           </TitleInfo>
 
           <TitleDate>Data</TitleDate>
-          <TitleDateInfo>
-            {myconsumption !== null ? myconsumption.date_time : dateActual}
-          </TitleDateInfo>
+          <TitleDateInfo>{dateActual}</TitleDateInfo>
           {myconsumption !== null && (
             <Flag>
               <Icon
@@ -227,7 +258,10 @@ function DigialScreen() {
 }
 
 function MyTabBar({state, descriptors, navigation}) {
-  type SigninScreenProp = StackNavigationProp<RootStackParamList, 'Signin'>;
+  type SigninScreenProp = StackNavigationProp<
+    RootStackParamList,
+    'SplashScreen'
+  >;
   const nav = useNavigation<SigninScreenProp>();
   const {saveUserAsyncStorage} = useContext(AuthContext);
 
@@ -293,7 +327,7 @@ function MyTabBar({state, descriptors, navigation}) {
           await saveUserAsyncStorage(null)
             .then(async () => {
               stopApi();
-              nav.navigate('Signin');
+              nav.push('SplashScreen');
             })
             .catch(error => console.error('Error', error));
         }

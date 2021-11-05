@@ -61,6 +61,7 @@ let _userToken = undefined;
 let total = 0.0;
 
 const currenteDate = format(new Date(), 'yyyy-MM-dd');
+const created_at = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
 
 const parser = new ReadLine({ delimiter: '\r\n' });
 mySerial.pipe(parser);
@@ -81,6 +82,9 @@ mySerial.on("open", () => {
           const kwh     = irms / 1000; 
           const result  = kwh * value; 
           total += result;
+
+          console.log('parser', parser);
+          console.log('TOTAL', total);
           
           const dataRequest = { 
             date_time: currenteDate, 
@@ -92,10 +96,11 @@ mySerial.on("open", () => {
             facebookId: _facebookId, 
             flag: _flag,
             kwh, 
-            total 
+            total,
+            created_at 
           }
 
-          console.log(kwh)
+          console.log('kwh', kwh);
           sendConsumo(dataRequest);
 
           if(kwh > 10 && _userToken !== undefined) {

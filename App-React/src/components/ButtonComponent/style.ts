@@ -5,6 +5,7 @@ export const Container = styled.View``;
 export const Button = styled(RectButton)`
   padding: 8px;
   width: 90%;
+  align-self: center;
   background: #39a5c7;
   border-radius: 8px;
   margin-top: 36px;
