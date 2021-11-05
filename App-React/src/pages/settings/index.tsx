@@ -20,14 +20,13 @@ import {
   ImageFlag,
   ContainerAllRadio,
   TitleFlag,
-  ButtonSavePreferences,
-  TextButtonPreferences,
 } from './style';
 
 import imageInfoYellow from '../../assets/flag_yellow.png';
 import imageInfoGreen from '../../assets/flag_green.png';
 import imageInfoRed from '../../assets/flag_red.png';
 import MessageComponent from '../../components/MessageComponent';
+import ButtonComponent from '../../components/ButtonComponent';
 
 const Settings: React.FC = () => {
   type ISigninScreenProp = StackNavigationProp<RootStackParamList, 'Signin'>;
@@ -111,9 +110,10 @@ const Settings: React.FC = () => {
         </ContainerAllRadio>
       </ContainerRadioButtonYellowCard.Group>
 
-      <ButtonSavePreferences onPress={() => saveMyPreferences()}>
-        <TextButtonPreferences>Save Preferences </TextButtonPreferences>
-      </ButtonSavePreferences>
+      <ButtonComponent
+        onPress={() => saveMyPreferences()}
+        text="Save Preferences"
+      />
 
       {message !== undefined && (
         <MessageComponent

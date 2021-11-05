@@ -2,14 +2,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 
-import {
-  Container,
-  ImageStarted,
-  TextInfo,
-  ButtonStarted,
-  TextTitleInfo,
-  TextButton,
-} from './style';
+import {Container, ImageStarted, TextInfo, TextTitleInfo} from './style';
 
 import imageInfo from '../../assets/undraw_Developer.png';
 import StatusBarComponent from '../../components/StatusBarComponent';
@@ -18,16 +11,20 @@ import ShapeComponent from '../../components/shapeComponent';
 import MessageComponent from '../../components/MessageComponent';
 import AuthContext from '../../contexts/auth';
 import {Preferences} from '../../model/Preferences';
+import ButtonComponent from '../../components/ButtonComponent';
 
 const SplashScreen: React.FC = () => {
   type ISigninScreenProp = StackNavigationProp<RootStackParamList, 'Accept'>;
+  type ISigninScreenSignin = StackNavigationProp<RootStackParamList, 'Signin'>;
   type ISigninScreenPropSetings = StackNavigationProp<
     RootStackParamList,
     'Settings'
   >;
   const navigation = useNavigation<ISigninScreenProp>();
   const navigationSetting = useNavigation<ISigninScreenPropSetings>();
+  const navigationSignin = useNavigation<ISigninScreenSignin>();
   const [message, setMessage] = useState<string | undefined>(undefined);
+  const [myPreferences, setMyPreferences] = useState<Preferences>();
   const {getPreferences} = useContext(AuthContext);
 
   useEffect(() => {
@@ -54,6 +51,7 @@ const SplashScreen: React.FC = () => {
       await getPreferences()
         .then(async result => {
           const {tarrif, flag} = JSON.parse(result as string) as Preferences;
+          setMyPreferences({tarrif, flag});
           setMessage(
             `Deseja atualizar tarifa de R$${tarrif.toFixed(
               2,
@@ -64,6 +62,14 @@ const SplashScreen: React.FC = () => {
     }
     preferences();
   }, [getPreferences]);
+
+  function goScreenLogin() {
+    if (myPreferences === undefined) {
+      navigation.navigate('Accept');
+    } else {
+      navigationSignin.navigate('Signin');
+    }
+  }
 
   return (
     <Container>
@@ -78,9 +84,7 @@ const SplashScreen: React.FC = () => {
         Started para iniciar a configuração e acesso ao IoT-App
       </TextInfo>
 
-      <ButtonStarted onPress={() => navigation.navigate('Accept')}>
-        <TextButton>Get started</TextButton>
-      </ButtonStarted>
+      <ButtonComponent text="Get started" onPress={() => goScreenLogin()} />
 
       {message !== undefined && (
         <MessageComponent
