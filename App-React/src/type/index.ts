@@ -3,4 +3,6 @@ export type RootStackParamList = {
   Signin: undefined;
   SplashScreen: undefined;
   Home: undefined;
+  Accept: undefined;
+  Settings: undefined;
 };

@@ -5,6 +5,7 @@ import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
+import {Preferences} from '../model/Preferences';
 
 interface AuthContextData {
   signed: boolean;
@@ -14,6 +15,8 @@ interface AuthContextData {
   saveDataInFirebase(user: User): Promise<void>;
   getUserAsyncStorage(): Promise<string | null>;
   loginFacebook(): Promise<void>;
+  getPreferences(): Promise<string | null>;
+  savetPreferences(preferences: Preferences): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -33,6 +36,15 @@ export const AutProvider: React.FC = ({children}) => {
   async function getUserAsyncStorage(): Promise<string | null> {
     const userStorage = await AsynSotorage.getItem('@IoT:user');
     return userStorage;
+  }
+
+  async function getPreferences(): Promise<string | null> {
+    const tariff = await AsynSotorage.getItem('@IoT:tarrif');
+    return tariff;
+  }
+
+  async function savetPreferences(preferences: Preferences): Promise<void> {
+    await AsynSotorage.setItem('@IoT:tarrif', JSON.stringify(preferences));
   }
 
   async function loginFacebook(): Promise<void> {
@@ -131,6 +143,8 @@ export const AutProvider: React.FC = ({children}) => {
         saveDataInFirebase,
         getUserAsyncStorage,
         loginFacebook,
+        getPreferences,
+        savetPreferences,
       }}>
       {children}
     </AuthContext.Provider>

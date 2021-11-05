@@ -2,6 +2,7 @@ import React, {useEffect, useState, useContext} from 'react';
 import {Container, TitleChart} from './style';
 import firestore from '@react-native-firebase/firestore';
 import AuthContext from '../../contexts/auth';
+import {format} from 'date-fns';
 import {
   Chart,
   Line,
@@ -18,6 +19,7 @@ interface DataJSON {
 }
 
 const ChartComponent: React.FC = () => {
+  const currenteDate = format(new Date(), 'dd/MM/yyyy');
   const [data, setData] = useState<ChartDataPoint[]>([]);
   const {getUserAsyncStorage} = useContext(AuthContext);
   const [visibility, setVisibility] = useState<boolean>(true);
@@ -36,7 +38,7 @@ const ChartComponent: React.FC = () => {
         .collection('history_kwh')
         .doc(`${dataJson.email}`)
         .collection(`${dataJson.facebookId}`)
-        .limit(11)
+        .limit(50)
         .get()
         .then(res => {
           let array: ChartDataPoint[] = [];
@@ -63,7 +65,10 @@ const ChartComponent: React.FC = () => {
 
       {data.length > 0 && (
         <>
-          <TitleChart>Chart Consumo de energia </TitleChart>
+          <TitleChart>Consumo de energia </TitleChart>
+          {currenteDate !== undefined && (
+            <TitleChart>{currenteDate}</TitleChart>
+          )}
 
           <Chart
             style={styledChart}
