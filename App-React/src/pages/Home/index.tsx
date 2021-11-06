@@ -78,11 +78,11 @@ function DigialScreen() {
   const [totalMont, setTotalMont] = useState<number>(0);
 
   useEffect(() => {
-    async function getLastDataHistory(): Promise<void> {
+    async function getLastDataHistory(user: User): Promise<void> {
       const history = await firestore()
         .collection('history_kwh')
-        .doc('fretasnetoednei@gmail.com')
-        .collection('2938944626329197')
+        .doc(user.email)
+        .collection(user.id as string)
         .get();
 
       const query = await history.query
@@ -117,7 +117,10 @@ function DigialScreen() {
                 flag,
                 userToken: user.token,
               };
+
               setEmail(user.email);
+              getLastDataHistory(user);
+
               await getAPI(authRequest);
             } else {
               console.log('Not exists users');
@@ -186,7 +189,6 @@ function DigialScreen() {
     }
 
     getUser();
-    getLastDataHistory();
   }, [getUserAsyncStorage, currenteDate, email, getPreferences]);
 
   return (
@@ -229,6 +231,10 @@ function DigialScreen() {
                 name="flag"
                 color={String(myconsumption?.flag).toLowerCase()}
               />
+              <TitleInfo>
+                {' '}
+                (R${Number(myconsumption.tariff).toFixed(2)})
+              </TitleInfo>
             </Flag>
           )}
         </InfoDigital>

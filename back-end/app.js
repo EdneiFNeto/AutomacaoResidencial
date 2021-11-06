@@ -1,5 +1,5 @@
 import express from 'express';
-import  http from 'http';
+import  http, { get } from 'http';
 import { getDatabase, ref, set } from "firebase/database";
 import { initializeApp } from "firebase/app";
 import { format } from 'date-fns'
@@ -61,7 +61,6 @@ let _userToken = undefined;
 let total = 0.0;
 
 const currenteDate = format(new Date(), 'yyyy-MM-dd');
-const created_at = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
 
 const parser = new ReadLine({ delimiter: '\r\n' });
 mySerial.pipe(parser);
@@ -83,9 +82,6 @@ mySerial.on("open", () => {
           const result  = kwh * value; 
           total += result;
 
-          console.log('parser', parser);
-          console.log('TOTAL', total);
-          
           const dataRequest = { 
             date_time: currenteDate, 
             voltage,  
@@ -97,10 +93,9 @@ mySerial.on("open", () => {
             flag: _flag,
             kwh, 
             total,
-            created_at 
+            created_at:  format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
           }
 
-          console.log('kwh', kwh);
           sendConsumo(dataRequest);
 
           if(kwh > 10 && _userToken !== undefined) {
@@ -196,6 +191,8 @@ async function saveHistory(data) {
   .then((res) => console.log('Success', res.id))
   .catch(error => console.error(error))
 }
+
+
 
 server.listen(3000, process.env.IP, () => {
   console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm:ss')}`);
