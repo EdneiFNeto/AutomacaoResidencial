@@ -1,10 +1,15 @@
 import express from 'express';
-import  http, { get } from 'http';
+import  http from 'http';
 import { getDatabase, ref, set } from "firebase/database";
 import { initializeApp } from "firebase/app";
 import { format } from 'date-fns'
 import axios from 'axios';
 import dotenv from 'dotenv';
+import SerialPort from 'serialport';
+import admin from 'firebase-admin';
+import { createRequire } from "module"; 
+import {Server} from 'socket.io';
+
 dotenv.config();
 
 const api = axios.create({
@@ -29,8 +34,6 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 
-import admin from 'firebase-admin';
-import { createRequire } from "module"; 
 const require = createRequire(import.meta.url);
 const serviceAccount = require("./service/serviceAccountKey.json")
 
@@ -45,7 +48,8 @@ const app = express();
 app.use(express.json());
 
 const server = http.createServer(app);
-import SerialPort from 'serialport';
+const io = new Server(server);
+
 const ReadLine = SerialPort.parsers.Readline;
 
 const mySerial = new SerialPort("COM19", { 
@@ -59,6 +63,7 @@ let _tariff = undefined;
 let _flag = undefined;
 let _userToken = undefined;
 let total = 0.0;
+let _dataChart = [];
 
 const currenteDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -147,6 +152,17 @@ app.post('/start', async (request, response) => {
   return response.status(200).json(request.body);
 });
 
+app.get('/get-data', async (request, response) => {
+  if(_dataChart.length === 0)
+    return response.status(400).json({error: 'Empty data chart!'});
+  return response.status(200).json(_dataChart);  
+});
+
+app.use(express.static('./public'));
+app.get('/', function(req, res) {
+  res.render('index.html');
+});
+
 function getNotification({ kwh, tariff }) {
   return {
     to: `${_userToken}`,
@@ -188,15 +204,23 @@ async function saveHistory(data) {
   .doc(data.email)
   .collection(data.facebookId)
   .add({ ...data })
-  .then((res) => console.log('Success', res.id))
+  .then((res) => {
+    console.log('success', res.id);
+    io.emit("getDataChart", {
+      value: data
+    });
+  })
   .catch(error => console.error(error))
 }
-
-
 
 server.listen(3000, process.env.IP, () => {
   console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm:ss')}`);
 });
+
+io.on('connection', (socket) => {
+  console.log('Socket connected');
+});
+
 
 
 
