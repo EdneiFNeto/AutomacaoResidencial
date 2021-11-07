@@ -48,7 +48,6 @@ import {AuthCommandRequest} from '../../model/AuthCommandRequest';
 import {Consumpotion} from '../../model/Consumpotion';
 import {Preferences} from '../../model/Preferences';
 import {StackNavigationProp} from '@react-navigation/stack';
-import firestore from '@react-native-firebase/firestore';
 
 function LogoutComponent() {
   return (
@@ -78,24 +77,6 @@ function DigialScreen() {
   const [totalMont, setTotalMont] = useState<number>(0);
 
   useEffect(() => {
-    async function getLastDataHistory(user: User): Promise<void> {
-      const history = await firestore()
-        .collection('history_kwh')
-        .doc(user.email)
-        .collection(user.id as string)
-        .get();
-
-      const query = await history.query
-        .orderBy('created_at', 'desc')
-        .limit(1)
-        .get();
-
-      const map = query.docs.map(res => {
-        return res.data();
-      });
-
-      setTotalMont(map[0].total);
-    }
 
     async function getPreferencesStorage(): Promise<Preferences> {
       const myPreferences = await getPreferences();
@@ -119,8 +100,6 @@ function DigialScreen() {
               };
 
               setEmail(user.email);
-              getLastDataHistory(user);
-
               await getAPI(authRequest);
             } else {
               console.log('Not exists users');

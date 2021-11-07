@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/boost.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Chart</title>
+</head>
+
+<body>
+  <div id="container"></div>
+</hr>
+</body>
+
+<script>
+  var socket = io();
+  let dataKwh = [];
+  let dataCorrente = [];
+  let dataPotencia = [];
+  let totalMonth = 0.0;
+  let count = 0;
+  const currenteDate = new Date();
+  socket.on("getDataChart", (data) => {
+    dataKwh.push(data.value.kwh);
+    dataCorrente.push(data.value.chain);
+    dataPotencia.push(data.value.potency);
+
+    if(dataKwh.length > 0 && dataCorrente.length > 0 && dataPotencia.length > 0){
+      hichart({ dataKwh, dataCorrente, dataPotencia})
+    }
+  });
+
+  function chartsJS(){
+    const labels = [0];
+    const data = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'KMH',
+          backgroundColor: 'rgb(255, 99, 132)',
+          borderColor: 'rgb(255, 99, 132)',
+          data: [0.0],
+          showLine: true
+        },
+        {
+          label: 'Corrente (Watts)',
+          backgroundColor: 'rgb(255, 191, 0)',
+          borderColor: 'rgb(255, 191, 0)',
+          data: [0.0],
+        },
+        {
+          label: 'Potência (A)',
+          backgroundColor: 'rgb(0, 0, 0)',
+          borderColor: 'rgb(0, 0, 0)',
+          data: [0.0],
+        },
+      ]
+    };
+
+    const config = {
+      type: 'line',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio:false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'IoT - App',
+            font: {
+              size: 16,
+              family: 'tahoma',
+              weight: 'bold',
+            },
+            
+          },
+          subtitle: {
+            display: true,
+            text: 'Gráfico de Consumo de Energia',
+            padding: {
+                bottom: 10
+            },
+            font: {
+              size: 16,
+              family: 'tahoma',
+              weight: 'normal',
+            },
+          },
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              padding: 10
+            },
+          },
+        }
+      }
+    };
+
+    const myChart = new Chart(
+      document.getElementById('myChart'),
+      config
+    );
+
+    myChart.canvas.parentNode.style.width = '100%';
+    myChart.canvas.parentNode.style.height = '300px';
+    myChart.canvas.parentNode.style.marginTop = '100px';
+
+  }
+
+  function updateChart(data){
+    myChart.data.datasets.forEach((dataset, index) => {
+      myChart.data.labels.push(++count);
+      
+      // if(dataset.label === 'Corrente (Watts)') 
+      //   dataset.data.push(data.chain);
+      if(dataset.label === 'Potência (A)') 
+        dataset.data.push(data.potency);
+      
+      if(dataset.label === 'KMH') 
+        dataset.data.push(data.kwh);
+      
+        myChart.update();
+    });
+
+  }
+
+  function hichart(data){
+    Highcharts.chart('container', {
+
+      title: {
+          text: 'IoT- App'
+      },
+
+      subtitle: {
+          text: 'Gráfico consumo de energia'
+      },
+
+      yAxis: {
+          title: {
+              text: 'Média de consumo'
+          },
+          labels: {
+            format: '{value:.,f}'
+        },
+        showFirstLabel: false
+      },
+
+      xAxis: {
+        type: 'datetime'
+    },
+
+      legend: {
+          layout: 'vertical',
+          align: 'right',
+          verticalAlign: 'middle'
+      },
+
+      plotOptions: {
+        series: {
+            pointStart: Date.UTC(2021, 10, 11),
+            pointInterval: 3600,
+            relativeXValue: true
+        }
+      },
+
+      series: [
+      {
+        name: 'Kwh',
+        data: data.dataKwh,
+        color: "#d50000"
+      },
+      {
+          name: 'Corrente (Watts)',
+          data: data.dataCorrente,
+          color: "#ff8f00"
+      }, {
+          name: 'Potência (A)',
+          data: data.dataPotencia,
+          color: "#388e3c"
+      }
+    ],
+
+      responsive: {
+          rules: [{
+              condition: {
+                  maxWidth: 500
+              },
+              chartOptions: {
+                  legend: {
+                      layout: 'horizontal',
+                      align: 'center',
+                      verticalAlign: 'bottom'
+                  }
+              }
+          }]
+      }
+
+      });
+  } 
+</script>
+</html>

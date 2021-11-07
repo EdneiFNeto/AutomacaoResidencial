@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import {WebView} from 'react-native-webview';
 
 export const Container = styled.View`
   position: absolute;
@@ -16,4 +17,10 @@ export const TitleChart = styled.Text`
   font-size: 18px;
   color: #000;
   text-transform: uppercase;
+`;
+
+export const ContainerWebView = styled(WebView)`
+  width: 350px;
+  height: 400px;
+  padding-top: 100px;
 `;
