@@ -31,20 +31,20 @@ void loop() {
   Irms = SCT013.calcIrms(1480);  
   potency = Irms * voltage; 
 
-  Serial.print("{irms:");
+  Serial.print("{ \"irms\": ");
   Serial.print((String)+Irms+", ");
 
-  Serial.print("potency:");
+  Serial.print("\"potency\": ");
   Serial.print((String)+potency+", ");
 
   
-  Serial.print("voltage:");
+  Serial.print("\"voltage\": ");
   Serial.print((String)+voltage);
   
-  Serial.println("}");
-
+  Serial.println(" }");
+ 
+  delay(3000);
   
-  delay(3000);  
 }
 ```
  
