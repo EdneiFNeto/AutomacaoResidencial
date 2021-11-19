@@ -13,29 +13,38 @@ O objetivo deste  é ler a porta serial e assim poder ligar/desligar um led util
 
 ```c
 
-#define led 13
-int valor_lido;
+#include "EmonLib.h";
+int voltage = 127;
+int pinSCT = A1;
+EnergyMonitor SCT013;
+int potency;
+char json;
+double Irms;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(led, OUTPUT);
+  SCT013.current(pinSCT, 60.607);
 }
 
 void loop() {
 
-  //informar se existe dados para ser exibido
-  if(Serial.available() > 0){
-    valor_lido = Serial.read();
-  }
+  Irms = SCT013.calcIrms(1480);  
+  potency = Irms * voltage; 
 
-  if(valor_lido == 1){
-    digitalWrite(led, HIGH);
-  } else {
-    digitalWrite(led, LOW);
-  }
+  Serial.print("{irms:");
+  Serial.print((String)+Irms+", ");
+
+  Serial.print("potency:");
+  Serial.print((String)+potency+", ");
+
   
-  Serial.println((String)"valor: "+valor_lido);
-  delay(1000);
+  Serial.print("voltage:");
+  Serial.print((String)+voltage);
+  
+  Serial.println("}");
+
+  
+  delay(3000);  
 }
 ```
  
