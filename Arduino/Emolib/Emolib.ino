@@ -12,6 +12,7 @@ void setup() {
   SCT013.current(pinSCT, 60.607);
 }
 
+
 void loop() {
 
   Irms = SCT013.calcIrms(1480);  
