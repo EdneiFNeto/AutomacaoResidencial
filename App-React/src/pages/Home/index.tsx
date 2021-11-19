@@ -74,10 +74,8 @@ function DigialScreen() {
   );
 
   const [statusBgDigitalChain, setStatusBgDigitalChain] = useState(bgDigital);
-  const [totalMont, setTotalMont] = useState<number>(0);
 
   useEffect(() => {
-
     async function getPreferencesStorage(): Promise<Preferences> {
       const myPreferences = await getPreferences();
       return JSON.parse(myPreferences as string) as Preferences;
@@ -189,7 +187,7 @@ function DigialScreen() {
           <TitleInfo>
             R${' '}
             {myconsumption !== null
-              ? Number(myconsumption.total + totalMont).toFixed(7)
+              ? Number(myconsumption.totalMonth).toFixed(7)
               : '00,00'}
           </TitleInfo>
 

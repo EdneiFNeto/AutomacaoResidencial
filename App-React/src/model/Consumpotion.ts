@@ -8,4 +8,5 @@ export interface Consumpotion {
   voltage: number;
   kwh: number;
   total: number;
+  totalMonth: number;
 }
