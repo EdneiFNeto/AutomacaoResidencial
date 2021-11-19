@@ -2,7 +2,7 @@
 O objetivo deste  é ler a porta serial e assim poder ligar/desligar um led utiliando API nodeJS 
 
 ## Screenshots
-![Serial Port](../screenshots/serial-port.PNG "Serial Port")
+![Serial Port](../screenshots/circuito.jpg "Circuito")
 
 ## Bibliotecas utilizadas
 
