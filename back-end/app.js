@@ -1,6 +1,6 @@
 import express from 'express';
 import  http from 'http';
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, set, get, child } from "firebase/database";
 import { initializeApp } from "firebase/app";
 import { format } from 'date-fns'
 import axios from 'axios';
@@ -64,6 +64,7 @@ let _flag = undefined;
 let _userToken = undefined;
 let total = 0.0;
 let _dataChart = [];
+let _totalMonth = 0.0;
 
 const currenteDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -97,7 +98,7 @@ mySerial.on("open", () => {
             facebookId: _facebookId, 
             flag: _flag,
             kwh, 
-            total,
+            total: formatterValue(total),
             created_at:  format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
           }
 
@@ -148,7 +149,12 @@ app.post('/start', async (request, response) => {
 
   if(valueLowecase !== 'OFF' && valueLowecase !== 'ON')
     return response.status(400).json({ error: `Command not found` });
-  
+
+  const getconcumption = await getConsumptionData()
+  if(getconcumption.exists()){
+    _totalMonth = getconcumption.val().date_time === currenteDate ? getconcumption.val().total : total;
+  }
+
   return response.status(200).json(request.body);
 });
 
@@ -162,6 +168,10 @@ app.use(express.static('./public'));
 app.get('/', function(req, res) {
   res.render('index.html');
 });
+
+function formatterValue(value){
+  return Number(Number(value).toFixed(7))
+}
 
 function getNotification({ kwh, tariff }) {
   return {
@@ -193,9 +203,14 @@ function sendNotification(notificationRequest){
 async function sendConsumo(data) {
   const db = getDatabase();
   set(ref(db, `/consumption_kwt/${_facebookId}`), 
-    { ...data })
-    .then(async ()=> await saveHistory(data))
-    .catch(error => console.error('error', error));
+  {...data, totalMonth: _totalMonth + data.total})
+  .then(async ()=> await saveHistory(data))
+  .catch(error => console.error('error', error));
+}
+
+async function getConsumptionData(){
+  const dbRef  = ref(getDatabase());
+  return get(child(dbRef , `consumption_kwt/${_facebookId}`));
 }
 
 async function saveHistory(data) {
@@ -203,8 +218,8 @@ async function saveHistory(data) {
   docRef
   .doc(data.email)
   .collection(data.facebookId)
-  .add({ ...data })
-  .then((res) => {
+  .add({ ...data, totalMonth: _totalMonth })
+  .then(res => {
     console.log('success', res.id);
     io.emit("getDataChart", {
       value: data
