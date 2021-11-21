@@ -9,6 +9,18 @@ import SerialPort from 'serialport';
 import admin from 'firebase-admin';
 import { createRequire } from "module"; 
 import {Server} from 'socket.io';
+import os from 'os';
+
+const currenteDate = format(new Date(), 'yyyy-MM-dd');
+let _command = undefined;
+let _email = undefined;
+let _facebookId = undefined;
+let _tariff = undefined;
+let _flag = undefined;
+let _userToken = undefined;
+let total = 0.0;
+let _dataChart = [];
+let _totalMonth = 0.0;
 
 dotenv.config();
 
@@ -52,68 +64,43 @@ const io = new Server(server);
 
 const ReadLine = SerialPort.parsers.Readline;
 
-const mySerial = new SerialPort("COM19", { 
-  baudRate: 9600,
-});
+app.post('/running', async (request, response) => {
+  console.log('OS', os.type());
 
-let _command = undefined;
-let _email = undefined;
-let _facebookId = undefined;
-let _tariff = undefined;
-let _flag = undefined;
-let _userToken = undefined;
-let total = 0.0;
-let _dataChart = [];
-let _totalMonth = 0.0;
+  const { port } = request.body;
 
-const currenteDate = format(new Date(), 'yyyy-MM-dd');
+  if(port === undefined){
+    return response.status(400).json({error: 'Port not found!'});
+  }
 
-const parser = new ReadLine({ delimiter: '\r\n' });
-mySerial.pipe(parser);
-
-mySerial.on("open", () => {
-  parser.on('data', (data) => {
-    if(_command !== undefined){
-      const  valueLowecase = String(_command).toUpperCase();
-      try {
-        if(valueLowecase === 'ON' && _email !== undefined 
-          && _facebookId !== undefined && _tariff !== undefined 
-          && _flag !== undefined && _userToken !== undefined)
-        {
-          
-          const parser = JSON.parse(data);
-          const { irms, potency, voltage } = parser;
-          const value   = _tariff / 10800;
-          const kwh     = irms / 1000; 
-          const result  = kwh * value; 
-          total += result;
-
-          const dataRequest = { 
-            date_time: currenteDate, 
-            voltage,  
-            potency, 
-            tariff: _tariff, 
-            chain: irms, 
-            email: _email, 
-            facebookId: _facebookId, 
-            flag: _flag,
-            kwh, 
-            total: formatterValue(total),
-            created_at:  format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-          }
-
-          sendConsumo(dataRequest);
-
-          if(kwh > 10 && _userToken !== undefined) {
-            sendNotification(getNotification({ kwh, tariff: _tariff }));
-          }
-        }
-      } catch (error) {
-        console.log('Error', error);
-      }
+  switch(os.type()){
+    case 'Linux': {
+      if(port !== '/dev/ttyUSB0')
+        return response.status(400).json({error: 'Not exits port!'});
+      break;
     }
-  });
+
+    case 'Win32': {
+      if(port !== 'COM19' || port !== 'COM22')
+        return response.status(400).json({error: 'Not exits port!'});
+      break;
+    }
+  }
+
+  const mySerial = new SerialPort(`${port}`, { baudRate: 9600, autoOpen: false });
+  mySerial.open(async function (err) {
+    if (err) {
+      return console.log('error', err.message)
+    }
+  })
+
+  if(!mySerial.isOpen)
+    await readMySerial(mySerial);
+  
+  return response.status(200).json({ message: `Running arduino in port ${port}` });
+
 });
+
 
 app.get('/stop', async (request, response) => {
   _command = undefined;
@@ -165,9 +152,61 @@ app.get('/get-data', async (request, response) => {
 });
 
 app.use(express.static('./public'));
+
 app.get('/', function(req, res) {
   res.render('index.html');
 });
+
+async function readMySerial(mySerial){
+  const parser = new ReadLine({ delimiter: '\r\n' });
+  mySerial.pipe(parser);
+
+  mySerial.on("open", () => {
+
+    console.log('Success connection')
+    parser.on('data', (data) => {
+      if(_command !== undefined){
+        const  valueLowecase = String(_command).toUpperCase();
+        try {
+          if(valueLowecase === 'ON' && _email !== undefined 
+            && _facebookId !== undefined && _tariff !== undefined 
+            && _flag !== undefined && _userToken !== undefined)
+          {
+            
+            const parser = JSON.parse(data);
+            const { irms, potency, voltage } = parser;
+            const value   = _tariff / 10800;
+            const kwh     = irms / 1000; 
+            const result  = kwh * value; 
+            total += result;
+
+            const dataRequest = { 
+              date_time: currenteDate, 
+              voltage,  
+              potency, 
+              tariff: _tariff, 
+              chain: irms, 
+              email: _email, 
+              facebookId: _facebookId, 
+              flag: _flag,
+              kwh, 
+              total: formatterValue(total),
+              created_at:  format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+            }
+
+            sendConsumo(dataRequest);
+
+            if(kwh > 10 && _userToken !== undefined) {
+              sendNotification(getNotification({ kwh, tariff: _tariff }));
+            }
+          }
+        } catch (error) {
+          console.log('Error', error);
+        }
+      }
+    });
+  });
+}
 
 function formatterValue(value){
   return Number(Number(value).toFixed(7))

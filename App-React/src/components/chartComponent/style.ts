@@ -8,6 +8,7 @@ export const Container = styled.View`
   width: 100%;
   flex-direction: column;
   justify-content: center;
+  background-color: white;
   align-items: center;
   z-index: 9999;
 `;
