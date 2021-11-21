@@ -280,9 +280,18 @@ io.on('connection', (socket) => {
 });
 ```
 
+## Iniciar back end
+Para rodar o back-end, primeiro precisa seguir um passo a passo:
+  - yarn install (instalar libs)
+  - npx nodemon app.js (Rodar servidor)
+  - Iniciar o Arduino enviando sua PORTA USB em que o Arduino está conectada para endpoint (http://IP:3000/running).
+  - Este método é do tipo POST -   { "port": "Sua Porta USB" }
+  
 ## Configuração .Env
-Adicionar as linhas a baixo para segurança do projeto
+Adicionar as linhas a baixo para segurança do projeto, como IP de sua maquina e dados do firebase.
 
-IP=IP
-AUTHORIZATION_TOKEN=AUTH_TOKEN
-PROJECT_ID=PROJECT_ID
+- IP=IP
+- AUTHORIZATION_TOKEN=AUTH_TOKEN
+- PROJECT_ID=PROJECT_ID
+
+
