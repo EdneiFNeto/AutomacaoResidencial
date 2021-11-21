@@ -59,6 +59,9 @@ local.properties
 *.iml
 android/app/build
 
+# Google serivce
+android/app/google-services.json
+
 
 # Node
 node_modules
@@ -117,3 +120,6 @@ package-lock.json
 
 # Android memory profiler files
 *.hprof
+
+.env
+yarn.lock
