@@ -48,6 +48,7 @@ import {AuthCommandRequest} from '../../model/AuthCommandRequest';
 import {Consumpotion} from '../../model/Consumpotion';
 import {Preferences} from '../../model/Preferences';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {ToastAndroid} from 'react-native';
 
 function LogoutComponent() {
   return (
@@ -113,6 +114,8 @@ function DigialScreen() {
         .then(result => {
           if (result.status === 200) {
             updateDigital();
+          } else {
+            ToastAndroid.show('Failure connection', ToastAndroid.SHORT);
           }
         })
         .catch(error => console.error('getAPI Error', `${error.message}`));
