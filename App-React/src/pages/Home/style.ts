@@ -100,23 +100,22 @@ export const TextTabBar = styled.Text`
 
 export const ContainerPotencyAndChain = styled.View`
   flex-direction: row;
-  width: 100%;
   padding: 12px;
   margin-top: 12px;
 `;
 
 export const DigitalPotence = styled.ImageBackground`
-  width: 50%;
+  width: 150px;
   height: 150px;
+  margin-right: 12px;
   padding: 30px;
-  margin-right: 4px;
 `;
 
 export const DigitalChain = styled.ImageBackground`
-  width: 50%;
+  width: 150px;
+  margin-left: 12px;
   height: 150px;
   padding: 30px;
-  margin-right: 4px;
 `;
 
 export const TitlePotenceChain = styled.Text`
