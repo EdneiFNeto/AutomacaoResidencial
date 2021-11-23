@@ -73,7 +73,6 @@ app.post('/running', async (request, response) => {
     return response.status(400).json({error: 'Port not found!'});
   }
 
-  console.log('OS', os.type());
   let isExistPoirt = false;
 
   switch(os.type()){
@@ -109,7 +108,6 @@ app.post('/running', async (request, response) => {
     await readMySerial(mySerial);
   
   return response.status(200).json({ message: `Running arduino in port ${port}` });
-
 });
 
 
