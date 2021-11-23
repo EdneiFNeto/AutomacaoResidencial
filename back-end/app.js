@@ -65,7 +65,6 @@ const io = new Server(server);
 const ReadLine = SerialPort.parsers.Readline;
 
 app.post('/running', async (request, response) => {
-  console.log('OS', os.type());
 
   const { port } = request.body;
 
@@ -171,23 +170,22 @@ async function readMySerial(mySerial){
   mySerial.pipe(parser);
 
   mySerial.on("open", () => {
-
-    console.log('Success connection')
+    
     parser.on('data', (data) => {
+      
       if(_command !== undefined){
         const  valueLowecase = String(_command).toUpperCase();
+        
         try {
           if(valueLowecase === 'ON' && _email !== undefined 
             && _facebookId !== undefined && _tariff !== undefined 
-            && _flag !== undefined && _userToken !== undefined)
-          {
+            && _flag !== undefined && _userToken !== undefined) {
             
             const parser = JSON.parse(data);
             const { irms, potency, voltage } = parser;
-            const value   = _tariff / 10800;
-            const kwh     = irms / 1000; 
-            const result  = kwh * value; 
-            total += result;
+            const hours   = _tariff / 10800;
+            const kwh     = (irms * hours * potency) / 1000; 
+            total += kwh;
 
             const dataRequest = { 
               date_time: currenteDate, 
@@ -199,6 +197,7 @@ async function readMySerial(mySerial){
               facebookId: _facebookId, 
               flag: _flag,
               kwh, 
+              hours,
               total: formatterValue(total),
               created_at:  format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             }
@@ -268,6 +267,7 @@ async function saveHistory(data) {
   .collection(data.facebookId)
   .add({ ...data, totalMonth: _totalMonth })
   .then(res => {
+    console.log(data);
     console.log('success', res.id);
     io.emit("getDataChart", {
       value: data
