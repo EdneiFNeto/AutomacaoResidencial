@@ -8,6 +8,7 @@ O objetivo deste  é ler a porta serial e assim poder ligar/desligar um led util
 
 - [Express](https://expressjs.com/pt-br/) 
 - [Serial Port](https://serialport.io/docs/guide-usage/)
+- [EmonLib](https://github.com/openenergymonitor/EmonLib)
 
 ## Código fonte do Arduino
 
