@@ -73,6 +73,9 @@ app.post('/running', async (request, response) => {
     return response.status(400).json({error: 'Port not found!'});
   }
 
+  console.log('OS', os.type());
+  let isExistPoirt = false;
+
   switch(os.type()){
     case 'Linux': {
       if(port !== '/dev/ttyUSB0')
@@ -80,9 +83,17 @@ app.post('/running', async (request, response) => {
       break;
     }
 
-    case 'Win32': {
-      if(port !== 'COM19' || port !== 'COM22')
+    case 'Windows_NT': {
+      for(let i =0; i < 30; i++){
+        if(port === `COM${i}`){
+          isExistPoirt = true;
+          break;
+        }
+      }
+
+      if(!isExistPoirt)
         return response.status(400).json({error: 'Not exits port!'});
+      
       break;
     }
   }
