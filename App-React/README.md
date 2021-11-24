@@ -6,8 +6,8 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 <p>
   <img src="../screenshots/app-1.PNG" width="200" title="hover text">
   <img src="../screenshots/App-2.PNG" width="200" title="hover text">
-  <img src="../screenshots/App-3.PNG" width="200" title="hover text">
-  <img src="../screenshots/App-4.PNG" width="200" title="hover text">  
+  <img src="../screenshots/digital.jpeg" width="200" title="hover text">  
+  <img src="../screenshots/chart.jpeg" width="200" title="hover text">  
 </p>
 
 # Instalar dependências e startar emulador 
