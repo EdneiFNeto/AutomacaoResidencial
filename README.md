@@ -8,9 +8,10 @@ Este projeto consiste em calcular o consumo de energia utilizando um micro contr
 
 ## Projetos
 
-- [Project App](https://github.com/EdneiFNeto/AutomacaoResidencial/tree/main/App-React) Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+- [Project App](https://github.com/EdneiFNeto/AutomacaoResidencial/tree/main/App-React) Projeto usando React Native, com a intenção de apresentar ao usuário os dados reais do consumo de energia.
 
-- [Back - End](https://github.com/EdneiFNeto/AutomacaoResidencial/tree/main/back-end) Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+- [Back - End](https://github.com/EdneiFNeto/AutomacaoResidencial/tree/main/back-end) Back-End utilizando NodeJS integrado ao Firebase, com a intenção de enviar os dados recebidos do Arduino e enviar para nuvem.
+
 
 ## Bibliotecas
 
