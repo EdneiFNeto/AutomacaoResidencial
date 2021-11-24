@@ -276,6 +276,7 @@ async function saveHistory(data) {
   .collection(data.facebookId)
   .add({ ...data, totalMonth: _totalMonth })
   .then(res => {
+    console.log('success', data);
     console.log('success', res.id);
     io.emit("getDataChart", {
       value: data
