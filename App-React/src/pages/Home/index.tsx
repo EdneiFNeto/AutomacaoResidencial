@@ -118,7 +118,12 @@ function DigialScreen() {
             ToastAndroid.show('Failure connection', ToastAndroid.SHORT);
           }
         })
-        .catch(error => console.error('getAPI Error', `${error.message}`));
+        .catch(error =>
+          console.error(
+            'getAPI Error',
+            `${JSON.stringify(error.response.data.error)}`,
+          ),
+        );
     }
 
     function updateDigitalKwh(value: number) {
