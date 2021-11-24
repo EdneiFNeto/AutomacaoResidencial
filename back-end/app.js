@@ -21,6 +21,7 @@ let _userToken = undefined;
 let total = 0.0;
 let _dataChart = [];
 let _totalMonth = 0.0;
+let _port= undefined;
 
 dotenv.config();
 
@@ -96,6 +97,8 @@ app.post('/running', async (request, response) => {
     }
   }
 
+  _port = port;
+
   const mySerial = new SerialPort(`${port}`, { baudRate: 9600, autoOpen: false });
   mySerial.open(async function (err) {
     if (err) {
@@ -150,6 +153,10 @@ app.post('/start', async (request, response) => {
     _totalMonth = getconcumption.val().date_time === currenteDate ? getconcumption.val().total : total;
   }
 
+  if(_port === undefined){
+    return response.status(400).json({ error: `Port undefined!` });
+  }
+    
   return response.status(200).json(request.body);
 });
 
@@ -171,6 +178,8 @@ async function readMySerial(mySerial){
 
   mySerial.on("open", () => {
     
+    console.log('Arduino connected...');
+
     parser.on('data', (data) => {
       
       if(_command !== undefined){
@@ -267,7 +276,6 @@ async function saveHistory(data) {
   .collection(data.facebookId)
   .add({ ...data, totalMonth: _totalMonth })
   .then(res => {
-    console.log(data);
     console.log('success', res.id);
     io.emit("getDataChart", {
       value: data
@@ -277,7 +285,7 @@ async function saveHistory(data) {
 }
 
 server.listen(3000, process.env.IP, () => {
-  console.log(`Server run in ${format(new(Date), 'yyyy-MM-dd HH:mm:ss')}`);
+  console.log(`Server run port ${process.env.IP}`);
 });
 
 io.on('connection', (socket) => {
