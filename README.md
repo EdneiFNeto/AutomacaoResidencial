@@ -16,11 +16,8 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 ## Bibliotecas
 
 - [Material-icons](https://material.io/)
-- [sweetalert](https://sweetalert.js.org/guides/)
-- [unform-web and core](https://unform.dev/examples/react-select/)
 - [axios](https://github.com/axios/axios)
-- [date-fns](https://date-fns.org/docs/Getting-Started)
-- [react](https://pt-br.reactjs.org/)
+- [react-Native](https://pt-br.reactjs.org/)
 
 ## Templete
 Templete utilizado como exemplo para desenvolvimento da aplicação [creative-tim](https://www.creative-tim.com/).
