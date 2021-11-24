@@ -19,7 +19,7 @@ Este projeto consiste em calcular o consumo de energia utilizando um micro contr
 - [react-Native](https://pt-br.reactjs.org/)
 
 ## Templete
-Templete utilizado como exemplo para desenvolvimento da aplicação [creative-tim](https://www.creative-tim.com/).
+Templete utilizado como exemplo para desenvolvimento da aplicação [Figma Mobile](https://www.figma.com/file/EbEZHtYOIdmFlMKYFsRTXo/Figma-Mobile-Desingn?node-id=0%3A1).
 
 ## Atuores
 - Ednei de Freitas Neto
